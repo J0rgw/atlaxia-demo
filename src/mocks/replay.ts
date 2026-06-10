@@ -129,9 +129,10 @@ const PROCESS_NAMES: Record<string, string> = {
   P6: 'P6 - Retrolavado',
 };
 
-/** Canonical key transform: strip "_PV" / "_STATUS" / "_ALARM" / "_STATE". */
+/** Canonical key transform: strip "_PV" / "_STATUS" / "_ALARM" / "_STATE",
+ *  then normalize to uppercase so a row lookup never misses on case alone. */
 function canonicalKey(raw: string): string {
-  return raw.replace(/_PV$|_STATUS$|_ALARM$|_STATE$/i, '');
+  return raw.replace(/_PV$|_STATUS$|_ALARM$|_STATE$/i, '').toUpperCase();
 }
 
 function diffSnapshot(prev: SensorRow | null, next: SensorRow): SensorRow {
