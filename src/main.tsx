@@ -12,6 +12,11 @@ async function bootstrap() {
     await worker.start({ onUnhandledRequest: 'bypass' });
     const { seedDemoState } = await import('./demo/seedDemoState');
     await seedDemoState();
+    // Start the SWAT replay engine in the background. CSV fetch + parse takes
+    // a couple of seconds; the login + overview render comfortably before
+    // it's needed.
+    const { replay } = await import('./mocks/replay');
+    void replay.init();
   }
 
   createRoot(document.getElementById('root')!).render(

@@ -7,6 +7,16 @@ async function loadBranding() {
   return res.json();
 }
 
+async function loadSensors() {
+  const res = await fetch(bypass('/swat/demo-sensors.json'));
+  return res.json();
+}
+
+async function loadPages() {
+  const res = await fetch(bypass('/swat/demo-pages.json'));
+  return res.json();
+}
+
 export const installationHandlers = [
   http.get('/api/installation/branding', async () => {
     const branding = await loadBranding();
@@ -36,6 +46,46 @@ export const installationHandlers = [
       devices_created: 51,
       buckets_created: 6,
       errors: [],
+    });
+  }),
+
+  http.get('/api/installation/config', async () => {
+    const [branding, sensors, pages] = await Promise.all([
+      loadBranding(),
+      loadSensors(),
+      loadPages(),
+    ]);
+    return HttpResponse.json({
+      installation_name: branding.installation_name,
+      logo_url: branding.logo_url,
+      theme_primary: branding.theme_primary,
+      theme_secondary: branding.theme_secondary,
+      theme_accent: branding.theme_accent,
+      theme_variant: branding.theme_variant,
+      sensors_config: sensors,
+      pages_config: pages,
+      features_config: {},
+    });
+  }),
+
+  http.put('/api/installation/config', async ({ request }) => {
+    const body = await request.json();
+    const [branding, sensors, pages] = await Promise.all([
+      loadBranding(),
+      loadSensors(),
+      loadPages(),
+    ]);
+    return HttpResponse.json({
+      installation_name: branding.installation_name,
+      logo_url: branding.logo_url,
+      theme_primary: branding.theme_primary,
+      theme_secondary: branding.theme_secondary,
+      theme_accent: branding.theme_accent,
+      theme_variant: branding.theme_variant,
+      sensors_config: sensors,
+      pages_config: pages,
+      features_config: {},
+      ...(body as Record<string, unknown>),
     });
   }),
 ];

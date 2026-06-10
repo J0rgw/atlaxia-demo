@@ -1,0 +1,1452 @@
+{
+  "dataset": "SWaT",
+  "version": "A5 (Jul 2019 v2)",
+  "release_date": "2019-10-23",
+  "source": "iTrust, Centre for Research in Cyber Security, SUTD Singapore",
+  "source_url": "https://itrust.sutd.edu.sg/itrust-labs_datasets/",
+  "description": "Secure Water Treatment testbed data with 6 physical attacks on sensors and actuators",
+  "rows": 14996,
+  "columns": 78,
+  "period_start": "2019-07-20 04:30:00+00:00",
+  "period_end": "2019-07-20 08:39:59.004013+00:00",
+  "duration_hours": 4.17,
+  "sampling_rate": "1 second",
+  "timezone_info": {
+    "csv_timezone": "UTC (GMT+0)",
+    "pdf_timezone": "GMT+8 (Singapore local time)",
+    "note": "From readme.docx: 'Timestamps in the xlsx file are in GMT+0 while the list of attacks in pdf file is in GMT+8'"
+  },
+  "output_files": {
+    "swat_jul2019_v2_clean.csv": {
+      "description": "Clean dataset without attack labels",
+      "rows": 14996,
+      "columns": 78
+    },
+    "swat_jul2019_v2_labeled.csv": {
+      "description": "Clean dataset WITH attack labels (attack_label, attack_id, attack_name, attack_target)",
+      "rows": 14996,
+      "columns": 82,
+      "normal_rows": 12933,
+      "attack_rows": 2063,
+      "note": "Timestamps corrected by detecting anomalies in data (PDF had offset errors)"
+    }
+  },
+  "normal_period": {
+    "start": "2019-07-20 04:30:00+00:00",
+    "end": "2019-07-20 07:06:59+00:00",
+    "duration_hours": 2.62,
+    "description": "Normal operation without attacks"
+  },
+  "attack_period": {
+    "start": "2019-07-20 07:07:00+00:00",
+    "end": "2019-07-20 08:15:07+00:00",
+    "duration_hours": 1.13,
+    "description": "6 physical attacks on sensors/actuators (intermittent, not continuous)",
+    "num_attacks": 6,
+    "total_attack_rows": 2063
+  },
+  "attacks": [
+    {
+      "id": 1,
+      "name": "FIT401_spoof",
+      "target": "FIT401_PV",
+      "attack_type": "Sensor spoofing",
+      "manipulation": "Spoof value from 0.8 to 0.5",
+      "intent": "Stop de-chlorination by switching off UV401",
+      "affected_stage": "P4",
+      "start_utc": "2019-07-20 07:07:00+00:00",
+      "end_utc": "2019-07-20 07:08:44+00:00",
+      "duration_seconds": 104,
+      "rows": 104,
+      "observable_effect": "FIT401_PV drops from ~0.8 to ~0.5, UV401_STATUS changes from 2 to 1"
+    },
+    {
+      "id": 2,
+      "name": "LIT301_spoof",
+      "target": "LIT301_PV",
+      "attack_type": "Sensor spoofing",
+      "manipulation": "Spoof value to 1024 (false high level)",
+      "intent": "Eventually lead to underflow in tank T301",
+      "affected_stage": "P3",
+      "start_utc": "2019-07-20 07:13:27+00:00",
+      "end_utc": "2019-07-20 07:17:47+00:00",
+      "duration_seconds": 260,
+      "rows": 260,
+      "observable_effect": "LIT301_PV jumps to 1024, then drops abruptly to ~789 when attack ends"
+    },
+    {
+      "id": 3,
+      "name": "P601_switch",
+      "target": "P601_STATUS",
+      "attack_type": "Actuator manipulation",
+      "manipulation": "Switch from OFF (1) to ON (2)",
+      "intent": "Increase water in raw water tank T101",
+      "affected_stage": "P6",
+      "start_utc": "2019-07-20 07:25:13+00:00",
+      "end_utc": "2019-07-20 07:29:02+00:00",
+      "duration_seconds": 229,
+      "rows": 229,
+      "observable_effect": "P601_STATUS changes from 1 to 2, FIT601_PV increases"
+    },
+    {
+      "id": 4,
+      "name": "MV201_P101_multipoint",
+      "target": "MV201_STATUS,P101_STATUS",
+      "attack_type": "Multi-point actuator manipulation",
+      "manipulation": "MV201: manipulated, P101: manipulated",
+      "intent": "Overflow tank T301 via coordinated attack",
+      "affected_stage": "P1,P2,P3",
+      "start_utc": "2019-07-20 07:37:05+00:00",
+      "end_utc": "2019-07-20 07:44:56+00:00",
+      "duration_seconds": 471,
+      "rows": 471,
+      "observable_effect": "Coordinated changes in MV201 and P101, affects flow to T301"
+    },
+    {
+      "id": 5,
+      "name": "MV501_switch",
+      "target": "MV501_STATUS",
+      "attack_type": "Actuator manipulation",
+      "manipulation": "Rapid state changes (2→0→1→0→2)",
+      "intent": "Drain water from Reverse Osmosis system",
+      "affected_stage": "P5",
+      "start_utc": "2019-07-20 07:52:17+00:00",
+      "end_utc": "2019-07-20 07:54:55+00:00",
+      "duration_seconds": 158,
+      "rows": 158,
+      "observable_effect": "MV501_STATUS shows rapid toggling between states"
+    },
+    {
+      "id": 6,
+      "name": "P301_switch",
+      "target": "P301_STATUS",
+      "attack_type": "Actuator manipulation",
+      "manipulation": "Switch from ON (2) to OFF (1)",
+      "intent": "Halt stage 3 (UF process)",
+      "affected_stage": "P3",
+      "start_utc": "2019-07-20 08:01:06+00:00",
+      "end_utc": "2019-07-20 08:15:07+00:00",
+      "duration_seconds": 841,
+      "rows": 841,
+      "observable_effect": "P301_STATUS drops from 2 to 1, FIT301_PV drops to near 0, LIT301 rises"
+    }
+  ],
+  "label_columns": {
+    "attack_label": "Binary label (0=normal, 1=attack)",
+    "attack_id": "Attack number (1-6, 0 for normal)",
+    "attack_name": "Attack identifier string",
+    "attack_target": "Targeted sensor/actuator column(s)"
+  },
+  "column_classification": {
+    "sensors_pv": [
+      "FIT101_PV",
+      "LIT101_PV",
+      "AIT201_PV",
+      "AIT202_PV",
+      "AIT203_PV",
+      "FIT201_PV",
+      "AIT301_PV",
+      "AIT302_PV",
+      "AIT303_PV",
+      "DPIT301_PV",
+      "FIT301_PV",
+      "LIT301_PV",
+      "AIT401_PV",
+      "AIT402_PV",
+      "FIT401_PV",
+      "LIT401_PV",
+      "AIT501_PV",
+      "AIT502_PV",
+      "AIT503_PV",
+      "AIT504_PV",
+      "FIT501_PV",
+      "FIT502_PV",
+      "FIT503_PV",
+      "FIT504_PV",
+      "PIT501_PV",
+      "PIT502_PV",
+      "PIT503_PV",
+      "FIT601_PV"
+    ],
+    "actuators_status": [
+      "MV101_STATUS",
+      "P101_STATUS",
+      "P102_STATUS",
+      "MV201_STATUS",
+      "P201_STATUS",
+      "P202_STATUS",
+      "P203_STATUS",
+      "P204_STATUS",
+      "P205_STATUS",
+      "P206_STATUS",
+      "P207_STATUS",
+      "P208_STATUS",
+      "MV301_STATUS",
+      "MV302_STATUS",
+      "MV303_STATUS",
+      "MV304_STATUS",
+      "P301_STATUS",
+      "P302_STATUS",
+      "P401_STATUS",
+      "P402_STATUS",
+      "P403_STATUS",
+      "P404_STATUS",
+      "UV401_STATUS",
+      "MV501_STATUS",
+      "MV502_STATUS",
+      "MV503_STATUS",
+      "MV504_STATUS",
+      "P501_STATUS",
+      "P502_STATUS",
+      "P601_STATUS",
+      "P602_STATUS",
+      "P603_STATUS"
+    ],
+    "level_switches": [
+      "LS201_ALARM",
+      "LS202_ALARM",
+      "LSL203_ALARM",
+      "LSLL203_ALARM",
+      "LS401_ALARM",
+      "LSH601_ALARM",
+      "LSH602_ALARM",
+      "LSH603_ALARM",
+      "LSL601_ALARM",
+      "LSL602_ALARM",
+      "LSL603_ALARM"
+    ],
+    "stage_states": [
+      "P1_STATE",
+      "P2_STATE",
+      "P3_STATE",
+      "P4_STATE",
+      "P5_STATE",
+      "P6STATE"
+    ]
+  },
+  "level_switch_definitions": {
+    "source": "From readme.docx - Official iTrust documentation",
+    "note": "These are physical level switches, NOT attack labels. Values: 1=Active, 0=Inactive",
+    "P2": {
+      "LS201_ALARM": {
+        "active_meaning": "Tank T-201 Low",
+        "inactive_meaning": "Tank T-201 Not Low"
+      },
+      "LS202_ALARM": {
+        "active_meaning": "Tank T-202 Low",
+        "inactive_meaning": "Tank T-202 Not Low"
+      },
+      "LSL203_ALARM": {
+        "active_meaning": "Tank T-203 Low",
+        "inactive_meaning": "Tank T-203 Not Low"
+      },
+      "LSLL203_ALARM": {
+        "active_meaning": "Tank T-203 Low-Low (critical)",
+        "inactive_meaning": "Tank T-203 Not Low-Low"
+      }
+    },
+    "P4": {
+      "LS401_ALARM": {
+        "active_meaning": "Tank T-401 Low",
+        "inactive_meaning": "Tank T-401 Not Low"
+      }
+    },
+    "P6": {
+      "LSH601_ALARM": {
+        "active_meaning": "Tank T-601 High",
+        "inactive_meaning": "Tank T-601 Not High"
+      },
+      "LSH602_ALARM": {
+        "active_meaning": "Tank T-602 High",
+        "inactive_meaning": "Tank T-602 Not High"
+      },
+      "LSH603_ALARM": {
+        "active_meaning": "Tank T-603 High",
+        "inactive_meaning": "Tank T-603 Not High"
+      },
+      "LSL601_ALARM": {
+        "active_meaning": "Tank T-601 Low",
+        "inactive_meaning": "Tank T-601 Not Low"
+      },
+      "LSL602_ALARM": {
+        "active_meaning": "Tank T-602 Low",
+        "inactive_meaning": "Tank T-602 Not Low"
+      },
+      "LSL603_ALARM": {
+        "active_meaning": "Tank T-603 Low",
+        "inactive_meaning": "Tank T-603 Not Low"
+      }
+    }
+  },
+  "stages": {
+    "P1": {
+      "name": "Raw Water Intake",
+      "description": "Controls raw water inflow via MV101, monitors tank level with LIT101",
+      "sensors": [
+        "FIT101_PV",
+        "LIT101_PV"
+      ],
+      "actuators": [
+        "MV101_STATUS",
+        "P101_STATUS",
+        "P102_STATUS"
+      ]
+    },
+    "P2": {
+      "name": "Chemical Dosing",
+      "description": "Chemical treatment with dosing pumps for disinfection",
+      "sensors": [
+        "AIT201_PV",
+        "AIT202_PV",
+        "AIT203_PV",
+        "FIT201_PV"
+      ],
+      "actuators": [
+        "MV201_STATUS",
+        "P201_STATUS",
+        "P202_STATUS",
+        "P203_STATUS",
+        "P204_STATUS",
+        "P205_STATUS",
+        "P206_STATUS",
+        "P207_STATUS",
+        "P208_STATUS"
+      ],
+      "level_switches": [
+        "LS201_ALARM",
+        "LS202_ALARM",
+        "LSL203_ALARM",
+        "LSLL203_ALARM"
+      ]
+    },
+    "P3": {
+      "name": "Ultrafiltration (UF)",
+      "description": "Membrane-based filtration system",
+      "sensors": [
+        "AIT301_PV",
+        "AIT302_PV",
+        "AIT303_PV",
+        "DPIT301_PV",
+        "FIT301_PV",
+        "LIT301_PV"
+      ],
+      "actuators": [
+        "MV301_STATUS",
+        "MV302_STATUS",
+        "MV303_STATUS",
+        "MV304_STATUS",
+        "P301_STATUS",
+        "P302_STATUS"
+      ]
+    },
+    "P4": {
+      "name": "Dechlorination (UV)",
+      "description": "UV treatment for chlorine removal",
+      "sensors": [
+        "AIT401_PV",
+        "AIT402_PV",
+        "FIT401_PV",
+        "LIT401_PV"
+      ],
+      "actuators": [
+        "UV401_STATUS",
+        "P401_STATUS",
+        "P402_STATUS",
+        "P403_STATUS",
+        "P404_STATUS"
+      ],
+      "level_switches": [
+        "LS401_ALARM"
+      ]
+    },
+    "P5": {
+      "name": "Reverse Osmosis (RO)",
+      "description": "Final purification via reverse osmosis membranes",
+      "sensors": [
+        "AIT501_PV",
+        "AIT502_PV",
+        "AIT503_PV",
+        "AIT504_PV",
+        "FIT501_PV",
+        "FIT502_PV",
+        "FIT503_PV",
+        "FIT504_PV",
+        "PIT501_PV",
+        "PIT502_PV",
+        "PIT503_PV"
+      ],
+      "actuators": [
+        "MV501_STATUS",
+        "MV502_STATUS",
+        "MV503_STATUS",
+        "MV504_STATUS",
+        "P501_STATUS",
+        "P502_STATUS"
+      ]
+    },
+    "P6": {
+      "name": "Backwash",
+      "description": "UF membrane cleaning and backwash system",
+      "sensors": [
+        "FIT601_PV"
+      ],
+      "actuators": [
+        "P601_STATUS",
+        "P602_STATUS",
+        "P603_STATUS"
+      ],
+      "level_switches": [
+        "LSH601_ALARM",
+        "LSH602_ALARM",
+        "LSH603_ALARM",
+        "LSL601_ALARM",
+        "LSL602_ALARM",
+        "LSL603_ALARM"
+      ]
+    }
+  },
+  "sensor_types": {
+    "LIT": "Level Indicating Transmitter (tank level in mm)",
+    "FIT": "Flow Indicating Transmitter (flow rate in m3/h)",
+    "AIT": "Analytical Indicating Transmitter (pH, ORP mV, conductivity uS/cm)",
+    "PIT": "Pressure Indicating Transmitter (pressure in bar)",
+    "DPIT": "Differential Pressure Indicating Transmitter"
+  },
+  "references": [
+    {
+      "title": "A Dataset to Support Research in the Design of Secure Water Treatment Systems",
+      "authors": "Jonathan Goh, Sridhar Adepu, Khurum Nazir Junejo, Aditya Mathur",
+      "venue": "CRITIS 2016",
+      "url": "https://link.springer.com/chapter/10.1007/978-3-319-71368-7_8"
+    },
+    {
+      "title": "SWaT: A Water Treatment Testbed for Research and Training on ICS Security",
+      "authors": "Aditya Mathur, Nils Ole Tippenhauer",
+      "venue": "CySWater 2016",
+      "url": "https://doi.org/10.1109/ICSEngineering.2016.7501267"
+    }
+  ],
+  "version_notes": {
+    "v1_to_v2": "Version 2 (A5) released Oct 23, 2019. Fixed field formatting: converted JSON-like strings '{u'IsSystem': False, u'Name': u'Inactive', u'Value': 0}' to 'Active' or 'Inactive' labels.",
+    "labeling_note": "Attack timestamps in labeled.csv were corrected by detecting anomalies in sensor values, as PDF timestamps had offset errors vs actual data changes."
+  },
+  "usage_notes": [
+    "Use swat_jul2019_v2_labeled.csv for supervised anomaly detection (has attack_label column)",
+    "Use swat_jul2019_v2_clean.csv for unsupervised methods or custom labeling",
+    "Level switches (*_ALARM columns) are physical tank level indicators, NOT attack labels",
+    "Attacks are intermittent with gaps between them, not continuous",
+    "86.2% normal (12,933 rows), 13.8% attack (2,063 rows)"
+  ],
+  "components": {
+    "source": "reports/figures/swat_diagram.html (SWaT v3 interactive diagram)",
+    "note": "Semántica por componente: sensor / actuator / tank / alarm / equipment. Un sensor OBSERVA una magnitud (measures); la acción se dirige al EQUIPO (act_on), no al sensor. affects/affectedBy = relaciones físicas de control/proceso. NO confundir con el grafo de relaciones INFERIDO por el modelo (otra cosa).",
+    "count": 76,
+    "items": [
+      {
+        "id": "MV101",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P1",
+        "measures": null,
+        "act_on": [
+          "MV101"
+        ],
+        "affects": "T101, FIT101",
+        "affectedBy": "LIT101",
+        "desc": "Válvula de entrada principal de agua cruda al sistema; abre/cierra el flujo de llenado de T101."
+      },
+      {
+        "id": "FIT101",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P1",
+        "measures": "caudal de entrada de agua cruda (m³/h)",
+        "act_on": [
+          "MV101"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "MV101",
+        "desc": "Sensor de caudal de agua cruda a la entrada; lectura anómala apunta a problema en MV101 o suministro externo."
+      },
+      {
+        "id": "T101",
+        "type": "tank",
+        "role": "tank",
+        "stage": "P1",
+        "measures": null,
+        "act_on": [
+          "MV101",
+          "P101",
+          "P102"
+        ],
+        "affects": "P101, P102, LIT101",
+        "affectedBy": "MV101, FIT601",
+        "desc": "Tanque de agua cruda (~1000 L); se llena por MV101 y se vacía hacia P2 vía P101/P102."
+      },
+      {
+        "id": "LIT101",
+        "type": "level",
+        "role": "sensor",
+        "stage": "P1",
+        "measures": "nivel del tanque T101 (mm)",
+        "act_on": [
+          "MV101",
+          "P101"
+        ],
+        "affects": "P101, MV101",
+        "affectedBy": "T101",
+        "desc": "Transmisor de nivel de T101; sus umbrales LOW/HIGH gobiernan apertura de MV101 y arranque/paro de P101."
+      },
+      {
+        "id": "P101",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P1",
+        "measures": null,
+        "act_on": [
+          "P101"
+        ],
+        "affects": "FIT201, T301",
+        "affectedBy": "LIT101, T101",
+        "desc": "Bomba principal de agua cruda; trasiega de T101 a la etapa P2 según el nivel LIT101 (TARGET ataque #4)."
+      },
+      {
+        "id": "P102",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P1",
+        "measures": null,
+        "act_on": [
+          "P102"
+        ],
+        "affects": "FIT201",
+        "affectedBy": "T101",
+        "desc": "Bomba de respaldo de P101; arranca automáticamente si P101 falla, misma función de bombeo a P2."
+      },
+      {
+        "id": "P201",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P201"
+        ],
+        "affects": "AIT201",
+        "affectedBy": "LS201",
+        "desc": "Bomba dosificadora de NaCl; inyecta cloruro de sodio para ajustar la conductividad, controlada por AIT201."
+      },
+      {
+        "id": "P202",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P202"
+        ],
+        "affects": "AIT201",
+        "affectedBy": "ninguno",
+        "desc": "Bomba de respaldo de la dosificación de NaCl (backup de P201)."
+      },
+      {
+        "id": "P203",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P203"
+        ],
+        "affects": "AIT202",
+        "affectedBy": "AIT202, LS202",
+        "desc": "Bomba dosificadora de HCl; inyecta ácido clorhídrico para bajar el pH (target 6.5-7.5), con feedback de AIT202."
+      },
+      {
+        "id": "P204",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P204"
+        ],
+        "affects": "AIT202",
+        "affectedBy": "ninguno",
+        "desc": "Bomba de respaldo de la dosificación de HCl (backup de P203)."
+      },
+      {
+        "id": "P205",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P205"
+        ],
+        "affects": "AIT203",
+        "affectedBy": "AIT203, LSL203, LSLL203",
+        "desc": "Bomba dosificadora de NaOCl (hipoclorito) para cloración/desinfección (target ORP 650-750mV), controlada por AIT203."
+      },
+      {
+        "id": "P206",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P206"
+        ],
+        "affects": "AIT203",
+        "affectedBy": "ninguno",
+        "desc": "Bomba de respaldo de la dosificación de NaOCl (backup de P205)."
+      },
+      {
+        "id": "FIT201",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P2",
+        "measures": "caudal tras la dosificación química (m³/h)",
+        "act_on": [
+          "P101",
+          "P102",
+          "P201",
+          "P203",
+          "P205"
+        ],
+        "affects": "AIT201",
+        "affectedBy": "P101, P102, P201, P203, P205",
+        "desc": "Sensor de caudal post-dosificación; usado para calcular ratios de dosificación de las bombas químicas."
+      },
+      {
+        "id": "AIT201",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P2",
+        "measures": "conductividad (µS/cm), proxy de concentración de NaCl",
+        "act_on": [
+          "P201",
+          "P202"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "P201, P202, FIT201",
+        "desc": "Transmisor analítico de conductividad; mide la concentración de NaCl y da feedback a las bombas P201/P202."
+      },
+      {
+        "id": "AIT202",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P2",
+        "measures": "pH del agua (rango 6.5-8.5)",
+        "act_on": [
+          "P203",
+          "P204"
+        ],
+        "affects": "P203",
+        "affectedBy": "P203, P204",
+        "desc": "Sensor de pH; regula la dosificación de HCl (P203) para proteger las membranas UF/RO."
+      },
+      {
+        "id": "AIT203",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P2",
+        "measures": "potencial redox ORP (mV), nivel de desinfección",
+        "act_on": [
+          "P205",
+          "P206"
+        ],
+        "affects": "P205",
+        "affectedBy": "P205, P206",
+        "desc": "Sensor de potencial redox (ORP); regula la dosificación de NaOCl (P205) para mantener la desinfección (target 650-750mV)."
+      },
+      {
+        "id": "MV201",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "MV201"
+        ],
+        "affects": "T301, LIT301",
+        "affectedBy": "ninguno",
+        "desc": "Válvula de salida de P2 hacia T301 (UF); su manipulación coordinada con P101 puede provocar overflow en T301 (TARGET ataque #4)."
+      },
+      {
+        "id": "LS201",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P201"
+        ],
+        "affects": "P201",
+        "affectedBy": "ninguno",
+        "desc": "Interruptor de nivel bajo del tanque de NaCl; protege a P201 de operar en seco."
+      },
+      {
+        "id": "LS202",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P203"
+        ],
+        "affects": "P203",
+        "affectedBy": "ninguno",
+        "desc": "Interruptor de nivel bajo del tanque de HCl; protege a P203."
+      },
+      {
+        "id": "LSL203",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P205"
+        ],
+        "affects": "P205",
+        "affectedBy": "ninguno",
+        "desc": "Interruptor de nivel bajo (Low) del tanque de NaOCl; advertencia que actúa sobre P205."
+      },
+      {
+        "id": "LSLL203",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P2",
+        "measures": null,
+        "act_on": [
+          "P205"
+        ],
+        "affects": "P205",
+        "affectedBy": "ninguno",
+        "desc": "Interruptor de nivel crítico (Low-Low) del tanque de NaOCl; ordena detener P205 de inmediato."
+      },
+      {
+        "id": "T301",
+        "type": "tank",
+        "role": "tank",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "T301"
+        ],
+        "affects": "P301, P302, LIT301",
+        "affectedBy": "MV201",
+        "desc": "Tanque de alimentación de ultrafiltración; recibe agua tratada de P2, nivel controlado por LIT301."
+      },
+      {
+        "id": "LIT301",
+        "type": "level",
+        "role": "sensor",
+        "stage": "P3",
+        "measures": "nivel del tanque T301 (UF Feed Tank)",
+        "act_on": [
+          "P301",
+          "T301"
+        ],
+        "affects": "P301",
+        "affectedBy": "T301",
+        "desc": "Transmisor de nivel de T301; objetivo de ataque (spoof a falso HIGH → P301 drena el tanque)."
+      },
+      {
+        "id": "P301",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "P301"
+        ],
+        "affects": "FIT301, MV301, UF",
+        "affectedBy": "LIT301, T301",
+        "desc": "Bomba principal de UF; genera presión para forzar agua a través de las membranas."
+      },
+      {
+        "id": "P302",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "P302"
+        ],
+        "affects": "MV301",
+        "affectedBy": "T301",
+        "desc": "Bomba de UF de respaldo (backup de P301)."
+      },
+      {
+        "id": "FIT301",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P3",
+        "measures": "caudal de agua a través de las membranas de UF (m³/h)",
+        "act_on": [
+          "P301"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "P301",
+        "desc": "Sensor de caudal de UF; una caída indica membranas sucias y dispara backwash."
+      },
+      {
+        "id": "MV301",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "MV301"
+        ],
+        "affects": "UF",
+        "affectedBy": "P301, P302",
+        "desc": "Válvula que controla la entrada de agua al módulo de UF."
+      },
+      {
+        "id": "UF",
+        "type": "filter",
+        "role": "equipment",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "UF"
+        ],
+        "affects": "MV302, MV303, MV304",
+        "affectedBy": "MV301, P602",
+        "desc": "Módulo de membranas de ultrafiltración (0.01-0.1µm); elimina partículas, bacterias y virus, requiere backwash periódico."
+      },
+      {
+        "id": "DPIT301",
+        "type": "pressure",
+        "role": "sensor",
+        "stage": "P3",
+        "measures": "presión diferencial a través de las membranas de UF (bar)",
+        "act_on": [
+          "UF",
+          "P602"
+        ],
+        "affects": "P602",
+        "affectedBy": "UF",
+        "desc": "Sensor de presión diferencial de UF; >0.4bar indica membranas sucias y dispara el ciclo de backwash."
+      },
+      {
+        "id": "MV302",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "MV302"
+        ],
+        "affects": "T401",
+        "affectedBy": "UF",
+        "desc": "Válvula de salida del permeado de UF hacia el tanque T401."
+      },
+      {
+        "id": "MV303",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "MV303"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "UF",
+        "desc": "Válvula que drena el concentrado durante el backwash."
+      },
+      {
+        "id": "MV304",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P3",
+        "measures": null,
+        "act_on": [
+          "MV304"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "UF",
+        "desc": "Válvula de drenaje general de UF para mantenimiento."
+      },
+      {
+        "id": "AIT301",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P3",
+        "measures": "calidad del agua de entrada a UF",
+        "act_on": [
+          "UF"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Sensor analítico que monitorea la calidad del agua de entrada a la UF."
+      },
+      {
+        "id": "AIT302",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P3",
+        "measures": "parámetros de calidad del proceso de UF",
+        "act_on": [
+          "UF"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Sensor analítico que monitorea el proceso de ultrafiltración."
+      },
+      {
+        "id": "AIT303",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P3",
+        "measures": "calidad del permeado de salida de UF",
+        "act_on": [
+          "UF"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Sensor analítico que monitorea la calidad del permeado de UF."
+      },
+      {
+        "id": "T401",
+        "type": "tank",
+        "role": "tank",
+        "stage": "P4",
+        "measures": null,
+        "act_on": [
+          "T401"
+        ],
+        "affects": "P401, P402, LIT401",
+        "affectedBy": "MV302",
+        "desc": "Tanque de alimentación de la ósmosis inversa; almacena permeado de UF, nivel crítico para la operación continua de P5."
+      },
+      {
+        "id": "LIT401",
+        "type": "level",
+        "role": "sensor",
+        "stage": "P4",
+        "measures": "nivel del tanque T401 (RO Feed Tank)",
+        "act_on": [
+          "P401",
+          "T401"
+        ],
+        "affects": "P401",
+        "affectedBy": "T401",
+        "desc": "Transmisor de nivel de T401; controla P401, nivel bajo señala problema upstream (UF) o demanda excesiva downstream (RO)."
+      },
+      {
+        "id": "P401",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P4",
+        "measures": null,
+        "act_on": [
+          "P401"
+        ],
+        "affects": "FIT401",
+        "affectedBy": "LIT401, T401",
+        "desc": "Bomba principal que envía agua de T401 hacia UV y RO; su caudal determina si UV401 está encendida."
+      },
+      {
+        "id": "P402",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P4",
+        "measures": null,
+        "act_on": [
+          "P402"
+        ],
+        "affects": "FIT401",
+        "affectedBy": "T401",
+        "desc": "Bomba de alimentación de RO de respaldo (backup de P401)."
+      },
+      {
+        "id": "FIT401",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P4",
+        "measures": "caudal de agua hacia la unidad UV (m³/h)",
+        "act_on": [
+          "P401",
+          "P402",
+          "UV401"
+        ],
+        "affects": "UV401",
+        "affectedBy": "P401, P402",
+        "desc": "Sensor de caudal crítico que controla el encendido de UV401 (>0.5 m³/h → UV ON); objetivo de ataque (spoof que apaga UV)."
+      },
+      {
+        "id": "UV401",
+        "type": "uv",
+        "role": "actuator",
+        "stage": "P4",
+        "measures": null,
+        "act_on": [
+          "UV401"
+        ],
+        "affects": "AIT402",
+        "affectedBy": "FIT401",
+        "desc": "Lámpara UV decloradora que elimina cloro residual y protege las membranas de RO; se apaga si FIT401<min."
+      },
+      {
+        "id": "P403",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P4",
+        "measures": null,
+        "act_on": [
+          "P403"
+        ],
+        "affects": "AIT402",
+        "affectedBy": "ninguno",
+        "desc": "Bomba dosificadora de bisulfito de sodio (NaHSO3) para reducir el ORP residual."
+      },
+      {
+        "id": "P404",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P4",
+        "measures": null,
+        "act_on": [
+          "P404"
+        ],
+        "affects": "AIT402",
+        "affectedBy": "ninguno",
+        "desc": "Bomba dosificadora de bisulfito de sodio de respaldo (backup de P403)."
+      },
+      {
+        "id": "AIT401",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P4",
+        "measures": "dureza del agua (mg/L CaCO3)",
+        "act_on": [],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Sensor analítico de dureza del agua, relevante para la vida útil de las membranas de RO."
+      },
+      {
+        "id": "AIT402",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P4",
+        "measures": "ORP del agua tras el paso por UV (post-UV)",
+        "act_on": [
+          "UV401",
+          "P403",
+          "P404"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "UV401, P403, P404",
+        "desc": "Sensor de ORP post-UV que verifica la eliminación de cloro; valor alto indica fallo de UV (posible ataque)."
+      },
+      {
+        "id": "LS401",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P4",
+        "measures": null,
+        "act_on": [
+          "T401"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "T401",
+        "desc": "Interruptor de nivel (alarma) que alerta cuando T401 baja demasiado."
+      },
+      {
+        "id": "FIT501",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "caudal de entrada al sistema RO",
+        "act_on": [
+          "MV501"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "AIT402",
+        "desc": "Sensor de flujo que mide el caudal entrando al sistema de osmosis inversa (1.0-2.0 m3/h)."
+      },
+      {
+        "id": "MV501",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P5",
+        "measures": null,
+        "act_on": [
+          "MV501"
+        ],
+        "affects": "P501",
+        "affectedBy": "FIT501",
+        "desc": "Valvula que controla la entrada a la bomba de alta presion RO; target del ataque #5 (toggling rapido)."
+      },
+      {
+        "id": "P501",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P5",
+        "measures": null,
+        "act_on": [
+          "P501"
+        ],
+        "affects": "RO, PIT501",
+        "affectedBy": "MV501",
+        "desc": "Bomba de alta presion que genera los 8-15 bar necesarios para la osmosis inversa; componente mas critico de P5."
+      },
+      {
+        "id": "P502",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P5",
+        "measures": null,
+        "act_on": [
+          "P502"
+        ],
+        "affects": "RO",
+        "affectedBy": "ninguno",
+        "desc": "Bomba de alta presion RO de respaldo de P501."
+      },
+      {
+        "id": "PIT501",
+        "type": "pressure",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "presion de entrada al RO (8-15 bar)",
+        "act_on": [
+          "P501"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "P501",
+        "desc": "Transmisor de presion de entrada RO; optimo 10-12 bar, muy alta dana membranas y muy baja reduce produccion."
+      },
+      {
+        "id": "PIT502",
+        "type": "pressure",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "presion inter-etapa del RO",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "RO",
+        "desc": "Sensor de presion entre las etapas de la unidad de osmosis inversa."
+      },
+      {
+        "id": "AIT501",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "conductividad del agua de entrada al RO",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Sensor de conductividad de entrada al RO (tipico 200-500 uS/cm)."
+      },
+      {
+        "id": "RO",
+        "type": "filter",
+        "role": "equipment",
+        "stage": "P5",
+        "measures": null,
+        "act_on": [
+          "RO"
+        ],
+        "affects": "FIT502, FIT503, FIT504",
+        "affectedBy": "P501, P502, PIT501",
+        "desc": "Unidad de osmosis inversa de 3 etapas; elimina 95-99% de sales y produce permeado y rechazo."
+      },
+      {
+        "id": "FIT502",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "caudal de permeado (agua pura) del RO",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "RO",
+        "desc": "Sensor de flujo del permeado (producto final), ~75-85% del flujo de entrada."
+      },
+      {
+        "id": "FIT503",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "caudal de rechazo (concentrado) del RO",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "RO",
+        "desc": "Sensor de flujo del rechazo concentrado de sales, ~15-25% del flujo de entrada."
+      },
+      {
+        "id": "FIT504",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "caudal de recirculacion del RO",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "RO",
+        "desc": "Sensor de flujo de recirculacion para optimizar la recuperacion del RO."
+      },
+      {
+        "id": "MV502",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P5",
+        "measures": null,
+        "act_on": [
+          "MV502"
+        ],
+        "affects": "T501",
+        "affectedBy": "FIT502",
+        "desc": "Valvula de salida del permeado (agua pura) hacia el tanque de almacenamiento T501."
+      },
+      {
+        "id": "MV503",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P5",
+        "measures": null,
+        "act_on": [
+          "MV503"
+        ],
+        "affects": "T502",
+        "affectedBy": "FIT503",
+        "desc": "Valvula que envia el concentrado de rechazo al tanque de backwash T502."
+      },
+      {
+        "id": "MV504",
+        "type": "valve",
+        "role": "actuator",
+        "stage": "P5",
+        "measures": null,
+        "act_on": [
+          "MV504"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "FIT504",
+        "desc": "Valvula de control de la recirculacion del RO."
+      },
+      {
+        "id": "PIT503",
+        "type": "pressure",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "presion en la linea de permeado",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "RO",
+        "desc": "Sensor de presion en la linea de permeado del RO."
+      },
+      {
+        "id": "AIT502",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "conductividad del permeado",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "RO",
+        "desc": "Sensor de conductividad del permeado (tipico <50 uS/cm); valor alto indica membranas danadas."
+      },
+      {
+        "id": "AIT503",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "parametro analitico adicional del RO",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Sensor analitico adicional de monitoreo del RO."
+      },
+      {
+        "id": "AIT504",
+        "type": "analytical",
+        "role": "sensor",
+        "stage": "P5",
+        "measures": "parametro analitico adicional del RO",
+        "act_on": [
+          "RO"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Sensor analitico adicional de monitoreo del RO."
+      },
+      {
+        "id": "T501",
+        "type": "tank",
+        "role": "tank",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "MV502",
+          "P601"
+        ],
+        "affects": "P601",
+        "affectedBy": "MV502",
+        "desc": "Tanque de permeado (agua pura), salida del proceso; puede alimentar P601 para recirculacion."
+      },
+      {
+        "id": "T502",
+        "type": "tank",
+        "role": "tank",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "MV503",
+          "P602"
+        ],
+        "affects": "P602",
+        "affectedBy": "MV503",
+        "desc": "Tanque de backwash de UF; se llena con el rechazo del RO y alimenta la limpieza de membranas UF."
+      },
+      {
+        "id": "P601",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "P601"
+        ],
+        "affects": "FIT601, T101",
+        "affectedBy": "T501",
+        "desc": "Bomba de retorno que bombea agua de T501 hacia T101; target del ataque #3 (encendido inesperado causa overflow)."
+      },
+      {
+        "id": "P602",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "P602"
+        ],
+        "affects": "UF",
+        "affectedBy": "T502, DPIT301",
+        "desc": "Bomba de backwash UF que bombea agua a contraflujo para limpiar las membranas UF (DPIT301>0.4bar o ~30min)."
+      },
+      {
+        "id": "P603",
+        "type": "pump",
+        "role": "actuator",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "P603"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Bomba auxiliar de P6 para operaciones especiales."
+      },
+      {
+        "id": "FIT601",
+        "type": "flow",
+        "role": "sensor",
+        "stage": "P6",
+        "measures": "caudal de retorno/backwash hacia T101",
+        "act_on": [
+          "P601"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "P601",
+        "desc": "Sensor de flujo de retorno a T101; un valor inesperado puede indicar el ataque #3 (P601 activado maliciosamente)."
+      },
+      {
+        "id": "LSH601",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "T501"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "T501",
+        "desc": "Alarma de nivel ALTO del tanque T501."
+      },
+      {
+        "id": "LSL601",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "T501"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "T501",
+        "desc": "Alarma de nivel BAJO del tanque T501."
+      },
+      {
+        "id": "LSH602",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "T502"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "T502",
+        "desc": "Alarma de nivel ALTO del tanque T502."
+      },
+      {
+        "id": "LSL602",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "T502"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "T502",
+        "desc": "Alarma de nivel BAJO del tanque T502."
+      },
+      {
+        "id": "LSH603",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "T603"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Alarma de nivel ALTO del tanque T603."
+      },
+      {
+        "id": "LSL603",
+        "type": "alarm",
+        "role": "alarm",
+        "stage": "P6",
+        "measures": null,
+        "act_on": [
+          "T603"
+        ],
+        "affects": "ninguno",
+        "affectedBy": "ninguno",
+        "desc": "Alarma de nivel BAJO del tanque T603."
+      }
+    ]
+  }
+}
