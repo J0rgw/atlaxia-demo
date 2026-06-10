@@ -1,0 +1,84 @@
+/* Modern theme — pre-SCADA Tailwind look.
+   Reconstructed from commit 4c085c8: rounded cards, drop shadows, Inter, slate palette. */
+
+:root.theme-modern {
+  /* Surfaces (light, slate) */
+  --bg-base:            #f8fafc;
+  --bg-surface:         #ffffff;
+  --bg-surface-raised:  #ffffff;
+  --bg-inset:           #f1f5f9;
+
+  /* Borders */
+  --border-subtle:      #e2e8f0;
+  --border-default:     #cbd5e1;
+  --border-emphasis:    #94a3b8;
+
+  /* Text */
+  --text-primary:       #0f172a;
+  --text-secondary:     #475569;
+  --text-muted:         #94a3b8;
+  --text-link:          #0ea5e9;
+
+  /* Status — softer, decorative pastels */
+  --status-normal:        #4ade80;
+  --status-advisory:      #38bdf8;
+  --status-warning:       #fbbf24;
+  --status-critical:      #f87171;
+  --status-emergency:     #ef4444;
+
+  --status-normal-muted:    rgba(74, 222, 128, 0.12);
+  --status-advisory-muted:  rgba(56, 189, 248, 0.12);
+  --status-warning-muted:   rgba(251, 191, 36, 0.14);
+  --status-critical-muted:  rgba(248, 113, 113, 0.14);
+  --status-emergency-muted: rgba(239, 68, 68, 0.15);
+
+  /* Accent */
+  --accent-primary:     #0d9488;
+  --accent-secondary:   #0ea5e9;
+  --accent-secondary-muted: rgba(14, 165, 233, 0.14);
+
+  /* Structural — rounded + soft shadows */
+  --radius-sm:    6px;
+  --radius-md:    8px;
+  --radius-lg:    12px;
+  --radius-xl:    16px;
+  --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.10), 0 1px 2px -1px rgb(0 0 0 / 0.10);
+  --font-sans:    'Inter';
+
+  /* Legacy bg vars (light) */
+  --color-bg-main:        #f8fafc;
+  --color-bg-sidebar:     #ffffff;
+  --color-bg-card:        #ffffff;
+  --color-border:         #e2e8f0;
+  --color-text-primary:   #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted:     #94a3b8;
+}
+
+:root.theme-modern.dark {
+  --bg-base:            #0f172a;
+  --bg-surface:         #1e293b;
+  --bg-surface-raised:  #334155;
+  --bg-inset:           #0b1220;
+
+  --border-subtle:      #334155;
+  --border-default:     #475569;
+  --border-emphasis:    #64748b;
+
+  --text-primary:       #f1f5f9;
+  --text-secondary:     #94a3b8;
+  --text-muted:         #64748b;
+  --text-link:          #38bdf8;
+
+  /* Slightly heavier shadow on dark to keep cards readable */
+  --shadow-card:  0 4px 12px 0 rgb(0 0 0 / 0.35), 0 1px 3px 0 rgb(0 0 0 / 0.25);
+
+  /* Legacy bg vars (dark) */
+  --color-bg-main:        #0f172a;
+  --color-bg-sidebar:     #1e293b;
+  --color-bg-card:        #1e293b;
+  --color-border:         #334155;
+  --color-text-primary:   #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted:     #64748b;
+}

@@ -1,0 +1,22 @@
+# =============================================================================
+# TrueData Frontend - Development Dockerfile
+# Runs Vite dev server with hot reload
+# =============================================================================
+# Project files (package.json, configs, src) are bind-mounted at runtime via
+# deploy/compose/frontend.yml. The build-time `npm ci` is kept as a warm cache
+# so first start is fast; the container CMD re-runs `npm install` on every
+# start to pick up dep changes without an image rebuild.
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Warm the dep cache at build time so the first container start is fast.
+COPY package*.json ./
+RUN npm ci
+
+EXPOSE 5173
+
+# `npm install` is near-noop when the lockfile matches; runs a real install
+# when a dep was added on the host. Then start Vite bound to all interfaces.
+CMD ["sh", "-c", "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0"]

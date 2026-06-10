@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@import './styles/themes/scada.css';
+@import './styles/themes/modern.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Per-installation branding (set by ThemeProvider from config.theme_primary).
+     Theme-template-independent — primary colour persists across SCADA / Modern. */
+  --color-primary: #0D9488;
+  --color-primary-hover: #0F766E;
+  --color-primary-light: #CCFBF1;
+  --color-primary-lighter: #F0FDFA;
+  --color-primary-dark: #115E59;
+  --color-primary-400: #2DD4BF;
+
+  --color-secondary: #0EA5E9;
+  --color-secondary-light: #E0F2FE;
+  --color-secondary-dark: #0369A1;
+
+  --color-success: #22C55E;
+  --color-success-light: #DCFCE7;
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-error: #EF4444;
+  --color-error-light: #FEE2E2;
+
+  /* Layout */
+  --sidebar-width: 200px;
+  --header-height: 44px;
+  --filters-panel-width: 280px;
+
+  /* Animation tokens */
+  --duration-instant:   0ms;
+  --duration-fast:      100ms;
+  --duration-normal:    200ms;
+  --duration-slow:      300ms;
+  --easing-default:     cubic-bezier(0.2, 0, 0, 1);
+  --easing-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Legacy *-light pastel overrides for dark mode (regardless of theme template) */
+:root.dark {
+  --color-success-light: #14532d;
+  --color-warning-light: #713f12;
+  --color-error-light: #7f1d1d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: var(--bg-base);
+}
+
+body {
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #94A3B8;
+  }
+
+  /* Industrial monospace readouts */
+  .font-readout {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'liga' 0;
+  }
+
+  /* Status accent borders */
+  .border-status-normal {
+    border-left: 3px solid var(--status-normal);
+  }
+  .border-status-warning {
+    border-left: 3px solid var(--status-warning);
+  }
+  .border-status-critical {
+    border-left: 3px solid var(--status-critical);
+  }
+  .border-status-emergency {
+    border-left: 3px solid var(--status-emergency);
+  }
+
+  /* Subtle scanline overlay for dark mode atmosphere */
+  .scanline-overlay {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+  }
+  :root.dark .scanline-overlay {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+  }
+}

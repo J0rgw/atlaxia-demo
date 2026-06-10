@@ -1,0 +1,833 @@
+import { useCallback } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+export type Language = 'es' | 'en';
+
+interface LanguageState {
+  language: Language;
+  setLanguage: (language: Language) => void;
+  toggleLanguage: () => void;
+}
+
+export const useLanguageStore = create<LanguageState>()(
+  persist(
+    (set) => ({
+      language: 'es', // Spanish as default
+      setLanguage: (language) => set({ language }),
+      toggleLanguage: () =>
+        set((state) => ({
+          language: state.language === 'es' ? 'en' : 'es',
+        })),
+    }),
+    {
+      name: 'atlaxia-language',
+    }
+  )
+);
+
+export const translations = {
+  es: {
+    // Header
+    search: 'Buscar...',
+    admin: 'Usuario Admin',
+    administrator: 'Administrador',
+
+    // Sidebar / Navigation
+    overview: 'Resumen',
+    plant: 'Planta',
+    logs: 'Registros',
+    telemetry: 'Telemetria',
+    sniffer: 'Sniffer',
+    policies: 'Politicas',
+    policiesPageTitle: 'Politicas de Red',
+    policiesPageSubtitle: 'Gestiona la lista blanca de dispositivos y las firmas IDS de Snort',
+    red: 'RED',
+    alerts: 'Alertas',
+    monitoring: 'MONITOREO',
+    anomalies: 'Anomalias',
+    control: 'Control',
+    settings: 'Configuracion',
+    collapse: 'Contraer',
+    expand: 'Expandir',
+    moduleData: 'DATOS',
+    moduleNetwork: 'RED',
+    dataOverview: 'Resumen',
+    networkOverview: 'Resumen',
+    plantRealtime: 'Planta',
+    historicTelemetry: 'Telemetria',
+    currentNetworkState: 'Estado',
+    dataAlerts: 'Anomalias',
+    dataOverviewSubtitle: 'Resumen del modulo de datos: planta, telemetria y anomalias',
+    networkOverviewSubtitle: 'Resumen del modulo de red: dispositivos, estado y alertas',
+    goToPlantRealtime: 'Ir a estado actual de planta',
+    goToHistoricTelemetry: 'Ir a telemetria historica',
+    goToDataAlerts: 'Ir a alertas de datos',
+    goToNetworkState: 'Ir a estado actual de red',
+    goToNetworkAlerts: 'Ir a alertas de red',
+
+    // Calendar
+    calendar: 'Calendario',
+    today: 'Hoy',
+    anomaly: 'Anomalia',
+    emergency: 'Emergencia',
+    noEvents: 'Sin eventos',
+    emergencyCount: 'emergencia(s)',
+    anomalyCount: 'anomalia(s)',
+    alertCount: 'alerta(s)',
+    noticeCount: 'aviso(s)',
+    max: 'max',
+
+    // KPIs
+    overallEfficiency: 'Eficiencia General del Sistema',
+    activeUnits: 'Unidades Activas / Salida Total',
+    criticalAlerts: 'Alertas Criticas / Tiempo Inactivo',
+    warningsActive: 'advertencias activas',
+    fromYesterday: 'desde ayer',
+
+    // KPIs MCT
+    systemStatus: 'Estado del Sistema',
+    devicesOnline: 'Dispositivos en Linea',
+    criticalityLevel: 'Nivel de Criticidad',
+    activeDevices: 'dispositivos activos',
+    totalDevices: 'de 127 totales',
+    normalOperation: 'operacion normal',
+    level: 'Nivel',
+    sensorsMonitored: '34 sensores monitorizados',
+    activeAlerts: 'alertas activas',
+
+    // Event logs MCT
+    flowSensorMain: 'Sensor Caudal Principal',
+    waterTreatmentPlc: 'PLC Tratamiento Agua',
+    redoxMonitor: 'Monitor Redox',
+    scadaSystem: 'Sistema SCADA',
+    tempSensorBiological: 'Sensor Temp. Biologico',
+
+    // Dashboard
+    realtimeAnalysis: 'Monitoreo de Caudal en Tiempo Real',
+    outputVolume: 'Caudal (m3/h)',
+    energyConsumption: 'Nivel Criticidad',
+    recentApiLogs: 'Eventos del Sistema',
+    success: 'Exitoso',
+    error: 'Error',
+    activeAlarms: 'Alarmas Activas',
+    noAlarms: 'Sin alarmas activas',
+    recentEvents: 'Eventos Recientes',
+    noRecentEvents: 'Sin eventos recientes',
+    sensorTrends: 'Tendencias de Sensores',
+    noTelemetryData: 'Sin datos de telemetria disponibles',
+    loading: 'Cargando...',
+    unauthorized: 'no autorizados',
+    processStatus: 'Estado de Procesos',
+    sensorsInAlarm: 'sensores en alarma',
+
+    // Dashboard Layout
+    editLayout: 'Editar Vista',
+    widgetCatalog: 'Componentes',
+    resetLayout: 'Restablecer vista',
+
+    // Filters Panel
+    dataParameters: 'Filtros',
+    dateRange: 'Rango de Fechas',
+    last24h: '24h',
+    last7days: '7 Dias',
+    last30days: '30 Dias',
+    custom: 'Otro',
+    dataSource: 'Fuente de Datos',
+    sensorArrayA: 'Sensores Caudal',
+    productionLine3: 'Sensores Temperatura',
+    energyGrid: 'Sensores Quimicos',
+    metricToggles: 'Metricas',
+    temperature: 'Temperatura',
+    pressure: 'Presion',
+    vibration: 'Vibracion',
+    visualizationType: 'Tipo de Visualizacion',
+    thresholdAlerts: 'Alertas de Umbral',
+    maxTemperature: 'Temperatura Maxima (C)',
+    maxPressure: 'Presion Maxima (PSI)',
+    applyFilters: 'Aplicar Filtros',
+    applyAndRefresh: 'Aplicar y Actualizar',
+    resetFilters: 'Restablecer filtros',
+    autoRefresh: 'Auto-actualizar',
+
+    // Network
+    hardwareDevices: 'Dispositivos Hardware',
+    networkDevices: 'Dispositivos de Red',
+    networkAlerts: 'Alertas de Red',
+    statusLegend: 'Leyenda de Estados',
+    status: 'Estado',
+    name: 'Nombre',
+    type: 'Tipo',
+    mac: 'MAC',
+    ip: 'IP',
+    importance: 'Importancia',
+    macOrigin: 'MAC Origen',
+    macDestination: 'MAC Destino',
+    ipOrigin: 'IP Origen',
+    ipDestination: 'IP Destino',
+    date: 'Fecha',
+    authorized: 'Autorizado',
+    notAuthorized: 'No autorizado',
+    critical: 'Critico',
+    notCritical: 'No critico',
+    repairable: 'Reparable',
+    notRepairable: 'No reparable',
+    high: 'Alta',
+    medium: 'Media',
+    low: 'Baja',
+    alert: 'Alerta',
+    notice: 'Aviso',
+
+    // Anomalies
+    anomalyDetection: 'Deteccion de Anomalias',
+    anomalyThreshold: 'Umbral de anomalia',
+    highlightedRows: 'Filas resaltadas indican anomalias detectadas',
+    category: 'Categoria',
+    variableName: 'Nombre de la Variable',
+    currentValue: 'Valor Actual',
+    behaviorSeparation: 'Separacion del Comportamiento',
+    anomalyIndicator: 'Indicador de Anomalia',
+
+    // Control
+    currentValues: 'Valores Actuales',
+    quality: 'Calidad',
+    flow: 'Caudal',
+    cybersecurity: 'Ciberseguridad',
+    humanFactor: 'Factor Humano',
+    indicators: 'Indicadores',
+
+    // Common
+    ok: 'OK',
+    warning: 'Advertencia',
+    offline: 'Desconectado',
+
+    // Variables page
+    sensorCategories: 'Categorias de Sensores',
+    selectSensors: 'Selecciona sensores para visualizar',
+
+    // Profile dropdown
+    myAccount: 'Mi cuenta',
+    darkMode: 'Modo oscuro',
+    lightMode: 'Modo claro',
+    language: 'Idioma',
+    logout: 'Cerrar sesion',
+
+    // Notifications
+    notifications: 'Notificaciones',
+    markAllRead: 'Marcar todo leido',
+    noNotifications: 'No hay notificaciones',
+    notifApiUpdate: 'Actualizacion de API disponible',
+    notifApiUpdateDesc: 'Hay una nueva version de la API (v2.1.0) disponible. Se recomienda actualizar para mejorar el rendimiento.',
+    notifServiceExpiring: 'Servicio proximo a caducar',
+    notifServiceExpiringDesc: 'La licencia del servicio MCT caduca en 15 dias. Contacte con soporte para renovar.',
+    notifConnectionLost: 'Conexion perdida',
+    notifConnectionLostDesc: 'Se perdio la conexion con el servidor ThingsBoard. Reintentando...',
+
+    // Sniffer & Alerts page
+    snifferStatus: 'Sniffer',
+    snifferActive: 'Activo',
+    snifferInactive: 'Inactivo',
+    snifferUnknown: 'Desconocido',
+    viewAllAlerts: 'Ver todas las alertas',
+    showing: 'Mostrando',
+    of: 'de',
+    searchAlerts: 'Buscar alertas',
+    filterByType: 'Filtrar por tipo',
+    allTypes: 'Todos los tipos',
+    dateFrom: 'Desde',
+    dateTo: 'Hasta',
+    acknowledge: 'Reconocer',
+    acknowledged: 'Reconocida',
+    actions: 'Acciones',
+    noAlertsFound: 'No se encontraron alertas',
+
+    // Whitelist
+    whitelist: 'Whitelist de Red',
+    addEntry: 'Agregar Entrada',
+    pattern: 'Patron',
+    description: 'Descripcion',
+    autoFlags: 'Auto-Flags',
+    noWhitelistEntries: 'No hay entradas en la whitelist',
+    save: 'Guardar',
+    cancel: 'Cancelar',
+
+    // Snort Rules
+    snortRules: 'Reglas Snort (IDS)',
+    addRule: 'Agregar Regla',
+    ruleText: 'Texto de regla Snort...',
+    templates: 'Plantillas',
+    import: 'Importar',
+    sync: 'Sincronizar',
+    enabled: 'activas',
+    disabled: 'Desactivada',
+    noSnortRules: 'No hay reglas configuradas',
+    priority: 'Prioridad',
+
+    // Alert Timeline & Dashboard
+    alertTimeline: 'Historial de Alertas',
+    hourly: 'Hora',
+    daily: 'Dia',
+    deviceDistribution: 'Distribucion de Dispositivos',
+
+    // Machines page
+    loadingMachineSensors: 'Cargando sensores de maquinas...',
+    noMachineSensors: 'No hay sensores de maquinas disponibles.',
+    verifyThingsBoard: 'Verifica la configuracion de ThingsBoard.',
+    allSensors: 'Todos los Sensores',
+    sensorsOf: 'Sensores',
+    viewAll: 'ver todos',
+    cards: 'Tarjetas',
+    charts: 'Graficos',
+    loadingThingsBoard: 'Cargando datos de ThingsBoard...',
+    selectSensorsFromPanel: 'Selecciona sensores del panel izquierdo para ver sus graficos',
+
+    // Machines - Diagnostics
+    diagnosticsPanel: 'Panel de Diagnosticos',
+    connection: 'Conexion',
+    data: 'Datos',
+    lastUpdate: 'Ultima Actualizacion',
+    sensors: 'Sensores',
+    mapped: 'mapeados',
+    reconnect: 'Reconectar',
+    unmappedKeys: 'Claves sin mapear',
+    never: 'Nunca',
+
+    // Machines - Process Panel
+    swatProcesses: 'Procesos SWaT',
+    searchSensor: 'Buscar sensor...',
+    removeFromFavorites: 'Quitar de favoritos',
+    addToFavorites: 'Agregar a favoritos',
+    noSensorsAvailable: 'No hay sensores disponibles',
+    noSensorsFound: 'No se encontraron sensores',
+    favorites: 'Favoritos',
+    otherSensors: 'Otros Sensores',
+    selected: 'seleccionados',
+    noData: 'Sin datos',
+
+    // Machines - AreaBandChart
+    normal: 'Normal',
+    advisory: 'Aviso',
+    warningRange: 'Advertencia',
+    normalRange: 'Rango normal',
+    points: 'puntos',
+    outOfRange: 'Fuera de rango',
+    exportCsv: 'Exportar CSV',
+    showBrush: 'Zoom',
+    priorityLegend: 'Niveles ISA-101',
+    drain: 'Drenaje',
+
+    // Process Flow Diagram
+    plantOverview: 'PLANTA DE TRATAMIENTO DE AGUA - VISTA GENERAL',
+    rawWater: 'AGUA\nCRUDA',
+    pureWater: 'AGUA\nPURA',
+    flowLabel: 'Caudal',
+    levelLabel: 'Nivel',
+    qualityLabel: 'Calidad',
+    pressureLabel: 'Presion',
+    dpLabel: 'Dif. Presion',
+    efficiencyIn: 'ENT',
+    efficiencyOut: 'SAL',
+
+    // Variables page
+    loadingVariableSensors: 'Cargando sensores de variables...',
+    noVariableSensors: 'No hay sensores de variables disponibles.',
+    loadVariableSensorsError: 'Error al cargar sensores de variables',
+    loadTelemetryError: 'Error al cargar datos de telemetria',
+    variableSensors: 'Variables de Sensores',
+
+    // Custom Pages
+    customPages: 'PAGINAS PERSONALIZADAS',
+    createPage: 'Crear Pagina',
+    pageName: 'Nombre de la Pagina',
+    selectIcon: 'Seleccionar Icono',
+    deletePageConfirm: 'Estas seguro de eliminar esta pagina?',
+    noCustomPages: 'No hay paginas personalizadas',
+    emptyPageHint: 'Activa el modo de edicion para agregar componentes a esta pagina',
+    deletePage: 'Eliminar',
+    customPagesTab: 'Paginas',
+
+    // Profile Sheet
+    profileTitle: 'Mi cuenta',
+    profileDescription: 'Preferencias del usuario y seguridad',
+    sectionAccount: 'Cuenta',
+    sectionAppearance: 'Apariencia',
+    sectionSecurity: 'Seguridad',
+    themeTemplate: 'Plantilla de tema',
+    themeTemplateDescription: 'Elige el estilo visual que prefieras',
+    scadaTemplate: 'SCADA',
+    modernTemplate: 'Moderno',
+    useInstallationDefault: 'Usar el de la instalacion',
+    currentPassword: 'Contrasena actual',
+    newPassword: 'Nueva contrasena',
+    confirmPassword: 'Confirmar contrasena',
+    changePassword: 'Cambiar contrasena',
+    passwordChanged: 'Contrasena actualizada',
+    passwordMismatch: 'Las contrasenas no coinciden',
+    passwordTooShort: 'Minimo 8 caracteres',
+    invalidCurrentPassword: 'Contrasena actual incorrecta',
+
+    // Settings sections
+    settingsIdentity: 'Identidad',
+    settingsPages: 'Paginas',
+    settingsSensors: 'Sensores',
+    settingsUsers: 'Usuarios',
+    settingsCustomPages: 'Personalizadas',
+    settingsMyPages: 'Paginas visibles',
+    settingsMySensors: 'Sensores visibles',
+    settingsMyPagesDescription: 'Activa solo las paginas que quieras ver en tu menu',
+    settingsMySensorsDescription: 'Activa solo los sensores que quieras ver en tus listas',
+    settingsAlarms: 'Limites de alarma',
+    settingsAlarmsDescription: 'Configura los limites ISA HH/H/L/LL por sensor',
+    settingsPlantSurvey: 'Survey de planta',
+    settingsPlantSurveyDescription: 'Datos del cliente y de la planta (solo lectura)',
+    settingsLicense: 'Licencia y sistema',
+    settingsLicenseDescription: 'Estado de la licencia y resumen del sistema',
+
+    // Inference level names (BFF v2.1)
+    NORMAL: 'Normal',
+    INFO: 'Info',
+    LOW: 'Bajo',
+    MEDIUM: 'Medio',
+    HIGH: 'Alto',
+    CRITICAL: 'Critico',
+    UNKNOWN: '—',
+    calibrationPending: 'Calibracion pendiente',
+    calibrationPendingHint: 'El modelo aun no ha validado su umbral con datos del cliente',
+    awaitingInferences: 'Esperando inferencias',
+    awaitingInferencesHint: 'Aun no ha llegado ningun mensaje del pipeline',
+
+    // Pipeline health chip
+    pipelineLabel: 'Pipeline',
+    pipelineOk: 'En linea',
+    pipelineOkTooltip: 'Inferencia en tiempo real',
+    pipelineWarmup: 'Calentando',
+    pipelineWarmupTooltip: 'Calentando modelos',
+    pipelineDegraded: 'Retrasada',
+    pipelineDegradedTooltip: 'Inferencia retrasada',
+    pipelineOutage: 'Sin conexion',
+    pipelineOutageTooltip: 'Inferencia desconectada',
+    pipelineUnknown: 'Desconocido',
+    pipelineUnknownTooltip: 'Estado desconocido',
+
+    // ETL data freshness chip
+    dataLabel: 'Datos',
+    dataFresh: 'Frescos',
+    dataStale: 'Atrasados',
+    dataDisconnected: 'Desconectados',
+
+    // Error boundary fallback
+    errorPageTitle: 'Algo no ha ido bien',
+    errorSectionTitle: 'No se pudo cargar esta sección',
+    errorWidgetMessage: 'No se pudieron cargar los datos',
+    errorBody: 'Espera unos segundos y vuelve a intentarlo. Si el problema persiste, contacta con el equipo de AtlaXia.',
+    errorRetry: 'Reintentar',
+  },
+  en: {
+    // Header
+    search: 'Search...',
+    admin: 'Admin User',
+    administrator: 'Administrator',
+
+    // Sidebar / Navigation
+    overview: 'Overview',
+    plant: 'Plant',
+    logs: 'Logs',
+    telemetry: 'Telemetry',
+    sniffer: 'Sniffer',
+    policies: 'Policies',
+    policiesPageTitle: 'Network Policies',
+    policiesPageSubtitle: 'Manage device whitelist and Snort IDS signatures',
+    red: 'NETWORK',
+    alerts: 'Alerts',
+    monitoring: 'MONITORING',
+    anomalies: 'Anomalies',
+    control: 'Control',
+    settings: 'Settings',
+    collapse: 'Collapse',
+    expand: 'Expand',
+    moduleData: 'DATA',
+    moduleNetwork: 'NETWORK',
+    dataOverview: 'Overview',
+    networkOverview: 'Overview',
+    plantRealtime: 'Plant',
+    historicTelemetry: 'Telemetry',
+    currentNetworkState: 'Status',
+    dataAlerts: 'Anomalies',
+    dataOverviewSubtitle: 'Data module summary: plant, telemetry, and anomalies',
+    networkOverviewSubtitle: 'Network module summary: devices, state, and alerts',
+    goToPlantRealtime: 'Go to plant current state',
+    goToHistoricTelemetry: 'Go to historic telemetry',
+    goToDataAlerts: 'Go to data alerts',
+    goToNetworkState: 'Go to current network state',
+    goToNetworkAlerts: 'Go to network alerts',
+
+    // Calendar
+    calendar: 'Calendar',
+    today: 'Today',
+    anomaly: 'Anomaly',
+    emergency: 'Emergency',
+    noEvents: 'No events',
+    emergencyCount: 'emergency(ies)',
+    anomalyCount: 'anomaly(ies)',
+    alertCount: 'alert(s)',
+    noticeCount: 'notice(s)',
+    max: 'max',
+
+    // KPIs
+    overallEfficiency: 'Overall System Efficiency',
+    activeUnits: 'Active Units / Total Output',
+    criticalAlerts: 'Critical Alerts / Downtime',
+    warningsActive: 'warnings active',
+    fromYesterday: 'from yesterday',
+
+    // KPIs MCT
+    systemStatus: 'System Status',
+    devicesOnline: 'Devices Online',
+    criticalityLevel: 'Criticality Level',
+    activeDevices: 'active devices',
+    totalDevices: 'of 127 total',
+    normalOperation: 'normal operation',
+    level: 'Level',
+    sensorsMonitored: '34 sensors monitored',
+    activeAlerts: 'active alerts',
+
+    // Event logs MCT
+    flowSensorMain: 'Main Flow Sensor',
+    waterTreatmentPlc: 'Water Treatment PLC',
+    redoxMonitor: 'Redox Monitor',
+    scadaSystem: 'SCADA System',
+    tempSensorBiological: 'Biological Temp. Sensor',
+
+    // Dashboard
+    realtimeAnalysis: 'Real-time Flow Monitoring',
+    outputVolume: 'Flow (m3/h)',
+    energyConsumption: 'Criticality Level',
+    recentApiLogs: 'System Events',
+    success: 'Success',
+    error: 'Error',
+    activeAlarms: 'Active Alarms',
+    noAlarms: 'No active alarms',
+    recentEvents: 'Recent Events',
+    noRecentEvents: 'No recent events',
+    sensorTrends: 'Sensor Trends',
+    noTelemetryData: 'No telemetry data available',
+    loading: 'Loading...',
+    unauthorized: 'unauthorized',
+    processStatus: 'Process Status',
+    sensorsInAlarm: 'sensors in alarm',
+
+    // Dashboard Layout
+    editLayout: 'Edit Layout',
+    widgetCatalog: 'Components',
+    resetLayout: 'Reset layout',
+
+    // Filters Panel
+    dataParameters: 'Filters',
+    dateRange: 'Date Range',
+    last24h: '24h',
+    last7days: '7 Days',
+    last30days: '30 Days',
+    custom: 'Other',
+    dataSource: 'Data Source',
+    sensorArrayA: 'Flow Sensors',
+    productionLine3: 'Temperature Sensors',
+    energyGrid: 'Chemical Sensors',
+    metricToggles: 'Metrics',
+    temperature: 'Temperature',
+    pressure: 'Pressure',
+    vibration: 'Vibration',
+    visualizationType: 'Visualization Type',
+    thresholdAlerts: 'Threshold Alerts',
+    maxTemperature: 'Max Temperature (C)',
+    maxPressure: 'Max Pressure (PSI)',
+    applyFilters: 'Apply Filters',
+    applyAndRefresh: 'Apply & Refresh',
+    resetFilters: 'Reset filters',
+    autoRefresh: 'Auto-refresh',
+
+    // Network
+    hardwareDevices: 'Hardware Devices',
+    networkDevices: 'Network Devices',
+    networkAlerts: 'Network Alerts',
+    statusLegend: 'Status Legend',
+    status: 'Status',
+    name: 'Name',
+    type: 'Type',
+    mac: 'MAC',
+    ip: 'IP',
+    importance: 'Importance',
+    macOrigin: 'Origin MAC',
+    macDestination: 'Destination MAC',
+    ipOrigin: 'Origin IP',
+    ipDestination: 'Destination IP',
+    date: 'Date',
+    authorized: 'Authorized',
+    notAuthorized: 'Not authorized',
+    critical: 'Critical',
+    notCritical: 'Not critical',
+    repairable: 'Repairable',
+    notRepairable: 'Not repairable',
+    high: 'High',
+    medium: 'Medium',
+    low: 'Low',
+    alert: 'Alert',
+    notice: 'Notice',
+
+    // Anomalies
+    anomalyDetection: 'Anomaly Detection',
+    anomalyThreshold: 'Anomaly threshold',
+    highlightedRows: 'Highlighted rows indicate detected anomalies',
+    category: 'Category',
+    variableName: 'Variable Name',
+    currentValue: 'Current Value',
+    behaviorSeparation: 'Behavior Separation',
+    anomalyIndicator: 'Anomaly Indicator',
+
+    // Control
+    currentValues: 'Current Values',
+    quality: 'Quality',
+    flow: 'Flow',
+    cybersecurity: 'Cybersecurity',
+    humanFactor: 'Human Factor',
+    indicators: 'Indicators',
+
+    // Common
+    ok: 'OK',
+    warning: 'Warning',
+    offline: 'Offline',
+
+    // Variables page
+    sensorCategories: 'Sensor Categories',
+    selectSensors: 'Select sensors to visualize',
+
+    // Profile dropdown
+    myAccount: 'My account',
+    darkMode: 'Dark mode',
+    lightMode: 'Light mode',
+    language: 'Language',
+    logout: 'Logout',
+
+    // Notifications
+    notifications: 'Notifications',
+    markAllRead: 'Mark all read',
+    noNotifications: 'No notifications',
+    notifApiUpdate: 'API update available',
+    notifApiUpdateDesc: 'A new API version (v2.1.0) is available. Update recommended for improved performance.',
+    notifServiceExpiring: 'Service expiring soon',
+    notifServiceExpiringDesc: 'MCT service license expires in 15 days. Contact support to renew.',
+    notifConnectionLost: 'Connection lost',
+    notifConnectionLostDesc: 'Lost connection to ThingsBoard server. Retrying...',
+
+    // Sniffer & Alerts page
+    snifferStatus: 'Sniffer',
+    snifferActive: 'Active',
+    snifferInactive: 'Inactive',
+    snifferUnknown: 'Unknown',
+    viewAllAlerts: 'View all alerts',
+    showing: 'Showing',
+    of: 'of',
+    searchAlerts: 'Search alerts',
+    filterByType: 'Filter by type',
+    allTypes: 'All types',
+    dateFrom: 'From',
+    dateTo: 'To',
+    acknowledge: 'Acknowledge',
+    acknowledged: 'Acknowledged',
+    actions: 'Actions',
+    noAlertsFound: 'No alerts found',
+
+    // Whitelist
+    whitelist: 'Network Whitelist',
+    addEntry: 'Add Entry',
+    pattern: 'Pattern',
+    description: 'Description',
+    autoFlags: 'Auto-Flags',
+    noWhitelistEntries: 'No whitelist entries',
+    save: 'Save',
+    cancel: 'Cancel',
+
+    // Snort Rules
+    snortRules: 'Snort Rules (IDS)',
+    addRule: 'Add Rule',
+    ruleText: 'Snort rule text...',
+    templates: 'Templates',
+    import: 'Import',
+    sync: 'Sync',
+    enabled: 'enabled',
+    disabled: 'Disabled',
+    noSnortRules: 'No rules configured',
+    priority: 'Priority',
+
+    // Alert Timeline & Dashboard
+    alertTimeline: 'Alert History',
+    hourly: 'Hour',
+    daily: 'Day',
+    deviceDistribution: 'Device Distribution',
+
+    // Machines page
+    loadingMachineSensors: 'Loading machine sensors...',
+    noMachineSensors: 'No machine sensors available.',
+    verifyThingsBoard: 'Verify ThingsBoard configuration.',
+    allSensors: 'All Sensors',
+    sensorsOf: 'Sensors',
+    viewAll: 'view all',
+    cards: 'Cards',
+    charts: 'Charts',
+    loadingThingsBoard: 'Loading ThingsBoard data...',
+    selectSensorsFromPanel: 'Select sensors from the left panel to view their charts',
+
+    // Machines - Diagnostics
+    diagnosticsPanel: 'Diagnostics Panel',
+    connection: 'Connection',
+    data: 'Data',
+    lastUpdate: 'Last Update',
+    sensors: 'Sensors',
+    mapped: 'mapped',
+    reconnect: 'Reconnect',
+    unmappedKeys: 'Unmapped Keys',
+    never: 'Never',
+
+    // Machines - Process Panel
+    swatProcesses: 'SWaT Processes',
+    searchSensor: 'Search sensor...',
+    removeFromFavorites: 'Remove from favorites',
+    addToFavorites: 'Add to favorites',
+    noSensorsAvailable: 'No sensors available',
+    noSensorsFound: 'No sensors found',
+    favorites: 'Favorites',
+    otherSensors: 'Other Sensors',
+    selected: 'selected',
+    noData: 'No data',
+
+    // Machines - AreaBandChart
+    normal: 'Normal',
+    advisory: 'Advisory',
+    warningRange: 'Warning',
+    normalRange: 'Normal range',
+    points: 'points',
+    outOfRange: 'Out of range',
+    exportCsv: 'Export CSV',
+    showBrush: 'Zoom',
+    priorityLegend: 'ISA-101 Levels',
+    drain: 'Drain',
+
+    // Process Flow Diagram
+    plantOverview: 'WATER TREATMENT PLANT - GENERAL VIEW',
+    rawWater: 'RAW\nWATER',
+    pureWater: 'PURE\nWATER',
+    flowLabel: 'Flow',
+    levelLabel: 'Level',
+    qualityLabel: 'Quality',
+    pressureLabel: 'Pressure',
+    dpLabel: 'Diff. Pressure',
+    efficiencyIn: 'IN',
+    efficiencyOut: 'OUT',
+
+    // Variables page
+    loadingVariableSensors: 'Loading variable sensors...',
+    noVariableSensors: 'No variable sensors available.',
+    loadVariableSensorsError: 'Error loading variable sensors',
+    loadTelemetryError: 'Error loading telemetry data',
+    variableSensors: 'Variable Sensors',
+
+    // Custom Pages
+    customPages: 'CUSTOM PAGES',
+    createPage: 'Create Page',
+    pageName: 'Page Name',
+    selectIcon: 'Select Icon',
+    deletePageConfirm: 'Are you sure you want to delete this page?',
+    noCustomPages: 'No custom pages',
+    emptyPageHint: 'Enable edit mode to add widgets to this page',
+    deletePage: 'Delete',
+    customPagesTab: 'Pages',
+
+    // Profile Sheet
+    profileTitle: 'My account',
+    profileDescription: 'User preferences and security',
+    sectionAccount: 'Account',
+    sectionAppearance: 'Appearance',
+    sectionSecurity: 'Security',
+    themeTemplate: 'Theme template',
+    themeTemplateDescription: 'Pick the visual style you prefer',
+    scadaTemplate: 'SCADA',
+    modernTemplate: 'Modern',
+    useInstallationDefault: 'Use installation default',
+    currentPassword: 'Current password',
+    newPassword: 'New password',
+    confirmPassword: 'Confirm password',
+    changePassword: 'Change password',
+    passwordChanged: 'Password updated',
+    passwordMismatch: 'Passwords do not match',
+    passwordTooShort: 'Minimum 8 characters',
+    invalidCurrentPassword: 'Invalid current password',
+
+    // Settings sections
+    settingsIdentity: 'Identity',
+    settingsPages: 'Pages',
+    settingsSensors: 'Sensors',
+    settingsUsers: 'Users',
+    settingsCustomPages: 'Custom',
+    settingsMyPages: 'My visible pages',
+    settingsMySensors: 'My visible sensors',
+    settingsMyPagesDescription: 'Only the pages you toggle on appear in your menu',
+    settingsMySensorsDescription: 'Only the sensors you toggle on appear in your lists',
+    settingsAlarms: 'Alarm thresholds',
+    settingsAlarmsDescription: 'Configure ISA HH/H/L/LL limits per sensor',
+    settingsPlantSurvey: 'Plant survey',
+    settingsPlantSurveyDescription: 'Client and plant data (read-only)',
+    settingsLicense: 'License & system',
+    settingsLicenseDescription: 'License status and system summary',
+
+    // Inference level names (BFF v2.1)
+    NORMAL: 'Normal',
+    INFO: 'Info',
+    LOW: 'Low',
+    MEDIUM: 'Medium',
+    HIGH: 'High',
+    CRITICAL: 'Critical',
+    UNKNOWN: '—',
+    calibrationPending: 'Calibration pending',
+    calibrationPendingHint: 'The model has not yet validated its threshold against client data',
+    awaitingInferences: 'Awaiting inferences',
+    awaitingInferencesHint: 'No pipeline message has arrived yet',
+
+    // Pipeline health chip
+    pipelineLabel: 'Pipeline',
+    pipelineOk: 'Online',
+    pipelineOkTooltip: 'Inference in real time',
+    pipelineWarmup: 'Warming up',
+    pipelineWarmupTooltip: 'Warming up models',
+    pipelineDegraded: 'Delayed',
+    pipelineDegradedTooltip: 'Inference delayed',
+    pipelineOutage: 'Offline',
+    pipelineOutageTooltip: 'Inference disconnected',
+    pipelineUnknown: 'Unknown',
+    pipelineUnknownTooltip: 'Unknown state',
+
+    // ETL data freshness chip
+    dataLabel: 'Data',
+    dataFresh: 'Fresh',
+    dataStale: 'Stale',
+    dataDisconnected: 'Disconnected',
+
+    // Error boundary fallback
+    errorPageTitle: 'Something went wrong',
+    errorSectionTitle: 'This section could not be loaded',
+    errorWidgetMessage: 'Could not load data',
+    errorBody: 'Wait a few seconds and try again. If the problem persists, contact the AtlaXia team.',
+    errorRetry: 'Retry',
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations.es;
+
+export function useTranslation() {
+  const language = useLanguageStore((state) => state.language);
+
+  const t = useCallback(
+    (key: TranslationKey): string => translations[language][key] || key,
+    [language]
+  );
+
+  return { t, language };
+}

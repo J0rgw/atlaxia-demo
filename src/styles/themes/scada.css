@@ -1,0 +1,81 @@
+/* SCADA theme — ISA-101 industrial, dark-first.
+   Default values live on :root.theme-scada (light); :root.theme-scada.dark adds dark overrides. */
+
+:root.theme-scada {
+  /* Surfaces */
+  --bg-base:            #f0f2f5;
+  --bg-surface:         #ffffff;
+  --bg-surface-raised:  #ffffff;
+  --bg-inset:           #e8ecf0;
+
+  /* Borders */
+  --border-subtle:      #d1d5db;
+  --border-default:     #b0b8c1;
+  --border-emphasis:    #6b7280;
+
+  /* Text */
+  --text-primary:       #1f2328;
+  --text-secondary:     #59636e;
+  --text-muted:         #8b949e;
+  --text-link:          #0969da;
+
+  /* Status (ISA-101) */
+  --status-normal:        #3fb950;
+  --status-advisory:      #58a6ff;
+  --status-warning:       #d29922;
+  --status-critical:      #f85149;
+  --status-emergency:     #da3633;
+
+  --status-normal-muted:    rgba(63, 185, 80, 0.10);
+  --status-advisory-muted:  rgba(88, 166, 255, 0.10);
+  --status-warning-muted:   rgba(210, 153, 34, 0.12);
+  --status-critical-muted:  rgba(248, 81, 73, 0.12);
+  --status-emergency-muted: rgba(218, 54, 51, 0.15);
+
+  /* Accent */
+  --accent-primary:     #58a6ff;
+  --accent-secondary:   #bc8cff;
+  --accent-secondary-muted: rgba(188, 140, 255, 0.14);
+
+  /* Tokenised structural properties */
+  --radius-sm:    4px;
+  --radius-md:    6px;
+  --radius-lg:    8px;
+  --radius-xl:    8px;
+  --shadow-card:  none;
+  --font-sans:    'IBM Plex Sans';
+
+  /* Legacy bg vars (light defaults) */
+  --color-bg-main:        #f0f2f5;
+  --color-bg-sidebar:     #ffffff;
+  --color-bg-card:        #ffffff;
+  --color-border:         #d1d5db;
+  --color-text-primary:   #1f2328;
+  --color-text-secondary: #59636e;
+  --color-text-muted:     #8b949e;
+}
+
+:root.theme-scada.dark {
+  --bg-base:            #0d1117;
+  --bg-surface:         #151b23;
+  --bg-surface-raised:  #1c2330;
+  --bg-inset:           #0a0e14;
+
+  --border-subtle:      #21262d;
+  --border-default:     #30363d;
+  --border-emphasis:    #484f58;
+
+  --text-primary:       #e6edf3;
+  --text-secondary:     #8b949e;
+  --text-muted:         #484f58;
+  --text-link:          #58a6ff;
+
+  /* Legacy bg vars (dark) */
+  --color-bg-main:        #0d1117;
+  --color-bg-sidebar:     #151b23;
+  --color-bg-card:        #151b23;
+  --color-border:         #21262d;
+  --color-text-primary:   #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-muted:     #484f58;
+}
