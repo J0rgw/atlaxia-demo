@@ -12,11 +12,17 @@ async function bootstrap() {
     await worker.start({ onUnhandledRequest: 'bypass' });
     const { seedDemoState } = await import('./demo/seedDemoState');
     await seedDemoState();
-    // Start the SWAT replay engine in the background. CSV fetch + parse takes
-    // a couple of seconds; the login + overview render comfortably before
-    // it's needed.
+    // Await the SWAT replay engine. CSV parse takes ~1-2s. Awaiting here is
+    // cheap (single time on boot) and means every downstream consumer —
+    // watchdog poll, /api/machines/sensors, WS bridge — gets real values on
+    // the very first request instead of empty defaults that visibly clear
+    // sensorValues each poll.
     const { replay } = await import('./mocks/replay');
-    void replay.init();
+    try {
+      await replay.init();
+    } catch (err) {
+      console.error('[main] Replay engine init failed; dashboards will render empty.', err);
+    }
   }
 
   createRoot(document.getElementById('root')!).render(

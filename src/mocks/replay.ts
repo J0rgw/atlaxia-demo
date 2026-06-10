@@ -170,38 +170,55 @@ class ReplayEngine {
   init(): Promise<void> {
     if (this.initialized) return this.initialized;
     this.initialized = (async () => {
-      const [csvText, fixture, attacks] = await Promise.all([
-        fetch(CSV_URL).then((r) => r.text()),
-        fetch(SENSORS_URL).then((r) => r.json() as Promise<DemoSensorsFixture>),
-        fetch(ATTACKS_URL).then((r) => r.ok ? r.json() as Promise<AttackManifestEntry[]> : []).catch(() => []),
-      ]);
-      this.mapping = fixture.mapping;
-      this.attackManifest = attacks;
-      const parsed = Papa.parse<Record<string, string>>(csvText, {
-        header: true,
-        dynamicTyping: false,
-        skipEmptyLines: true,
-      });
-      const headers = parsed.meta.fields ?? [];
-      this.columns = headers.filter((h) => h !== 'timestamp');
-      const numericRows: SensorRow[] = [];
-      for (const raw of parsed.data) {
-        const row: SensorRow = {};
-        for (const col of this.columns) {
-          const v = raw[col];
-          if (v === undefined || v === '') continue;
-          const n = Number(v);
-          if (Number.isFinite(n)) row[canonicalKey(col)] = n;
+      const startedAt = performance.now();
+      try {
+        const [csvRes, fixtureRes, attacksRes] = await Promise.all([
+          fetch(CSV_URL),
+          fetch(SENSORS_URL),
+          fetch(ATTACKS_URL).catch(() => null),
+        ]);
+        if (!csvRes.ok) throw new Error(`CSV fetch ${CSV_URL} returned ${csvRes.status}`);
+        if (!fixtureRes.ok) throw new Error(`Sensor fixture fetch ${SENSORS_URL} returned ${fixtureRes.status}`);
+        const [csvText, fixture, attacks] = await Promise.all([
+          csvRes.text(),
+          fixtureRes.json() as Promise<DemoSensorsFixture>,
+          attacksRes && attacksRes.ok ? (attacksRes.json() as Promise<AttackManifestEntry[]>) : Promise.resolve([] as AttackManifestEntry[]),
+        ]);
+        this.mapping = fixture.mapping;
+        this.attackManifest = attacks;
+        const parsed = Papa.parse<Record<string, string>>(csvText, {
+          header: true,
+          dynamicTyping: false,
+          skipEmptyLines: true,
+        });
+        const headers = parsed.meta.fields ?? [];
+        this.columns = headers.filter((h) => h !== 'timestamp');
+        const numericRows: SensorRow[] = [];
+        for (const raw of parsed.data) {
+          const row: SensorRow = {};
+          for (const col of this.columns) {
+            const v = raw[col];
+            if (v === undefined || v === '') continue;
+            const n = Number(v);
+            if (Number.isFinite(n)) row[canonicalKey(col)] = n;
+          }
+          numericRows.push(row);
         }
-        numericRows.push(row);
+        this.rows = numericRows;
+        this.cursor = 0;
+        this.tickIndex = 0;
+        this.bootTs = Date.now();
+        // Tick immediately so subscribers see a snapshot before the first interval.
+        this.tick();
+        setInterval(() => this.tick(), TICK_MS);
+        const ms = (performance.now() - startedAt).toFixed(0);
+        console.info(
+          `[replay] init complete in ${ms}ms — ${this.rows.length} rows, ${Object.keys(this.mapping).length} mapped sensors, latest row has keys: ${Object.keys(this.latest ?? {}).slice(0, 4).join(', ')}…`,
+        );
+      } catch (err) {
+        console.error('[replay] init FAILED:', err);
+        throw err;
       }
-      this.rows = numericRows;
-      this.cursor = 0;
-      this.tickIndex = 0;
-      this.bootTs = Date.now();
-      // Tick immediately so subscribers see a snapshot before the first interval.
-      this.tick();
-      setInterval(() => this.tick(), TICK_MS);
     })();
     return this.initialized;
   }
