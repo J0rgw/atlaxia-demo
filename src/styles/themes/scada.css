@@ -1,5 +1,21 @@
 /* SCADA theme — ISA-101 industrial, dark-first.
-   Default values live on :root.theme-scada (light); :root.theme-scada.dark adds dark overrides. */
+   Default values live on :root.theme-scada (light); :root.theme-scada.dark adds dark overrides.
+
+   Token semantics (three distinct roles, do NOT alias to one hex):
+     --accent-primary     Brand chrome. Sidebar active state, wordmark, primary
+                          buttons, focus rings, filter pills, slider thumbs,
+                          live indicators. Overridden per-tenant by
+                          useUnauthThemeBootstrap from branding.theme_primary,
+                          so its theme default should be DISTINCT from
+                          --status-advisory and --text-link or every tenant
+                          that picks the SCADA default accent will collide with
+                          informational state. Stays in the blue family for
+                          visual coherence with the data viz.
+     --status-advisory    ISA-101 informational state. Radar polygons, calendar
+                          accents, anomaly scatter dots, advisory chips. Fixed
+                          by the theme; tenant branding never touches it.
+     --text-link          Hyperlinks. Fixed by the theme; same blue family as
+                          advisory but its own role. */
 
 :root.theme-scada {
   /* Surfaces */
@@ -32,8 +48,10 @@
   --status-critical-muted:  rgba(248, 81, 73, 0.12);
   --status-emergency-muted: rgba(218, 54, 51, 0.15);
 
-  /* Accent */
-  --accent-primary:     #58a6ff;
+  /* Brand chrome — DELIBERATELY distinct from --status-advisory.
+     Primer "deeper blue" sits one step down the same hue from advisory so
+     the two read as a family but never as the same color. */
+  --accent-primary:     #1f6feb;
   --accent-secondary:   #bc8cff;
   --accent-secondary-muted: rgba(188, 140, 255, 0.14);
 
@@ -69,6 +87,11 @@
   --text-secondary:     #8b949e;
   --text-muted:         #484f58;
   --text-link:          #58a6ff;
+
+  /* Brand chrome — lifted in dark for AA contrast against bg-base #0d1117.
+     Still visibly darker / more saturated than --status-advisory #58a6ff,
+     so the role separation reads the same way as light mode. */
+  --accent-primary:     #388bfd;
 
   /* Legacy bg vars (dark) */
   --color-bg-main:        #0d1117;
