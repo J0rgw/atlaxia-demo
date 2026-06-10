@@ -10,6 +10,8 @@ async function bootstrap() {
   if (import.meta.env.MODE === 'demo') {
     const { worker } = await import('./mocks/browser');
     await worker.start({ onUnhandledRequest: 'bypass' });
+    const { seedDemoState } = await import('./demo/seedDemoState');
+    await seedDemoState();
   }
 
   createRoot(document.getElementById('root')!).render(
