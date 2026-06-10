@@ -11,9 +11,12 @@ import {
   readStoredThemeMode,
 } from '@/hooks/useUnauthThemeBootstrap';
 
+const IS_DEMO = import.meta.env.MODE === 'demo';
+const TOUR_WIZARD_FLAG = 'demo.tourWizard';
+
 export function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState(IS_DEMO ? 'demo' : '');
+  const [password, setPassword] = useState(IS_DEMO ? 'demo' : '');
   const [showPassword, setShowPassword] = useState(false);
 
   const login = useAuthStore((state) => state.login);
@@ -83,6 +86,22 @@ export function LoginPage() {
     }
   };
 
+  const handleDemoSignIn = async () => {
+    clearError();
+    try {
+      localStorage.removeItem(TOUR_WIZARD_FLAG);
+      await login('demo', 'demo');
+      navigate(from, { replace: true });
+    } catch {
+      // Error is handled in the store
+    }
+  };
+
+  const handleTourWizard = () => {
+    localStorage.setItem(TOUR_WIZARD_FLAG, 'true');
+    navigate('/setup');
+  };
+
   // Show loading while checking status
   if (statusLoading) {
     return (
@@ -123,6 +142,31 @@ export function LoginPage() {
             <h1 className="text-xl font-semibold text-[var(--text-primary)]">Bienvenido</h1>
             <p className="text-[var(--text-secondary)] text-sm mt-1">Ingresa tus credenciales para continuar</p>
           </div>
+
+          {IS_DEMO && (
+            <div className="mb-6 space-y-3">
+              <Button
+                type="button"
+                onClick={handleDemoSignIn}
+                disabled={isLoading}
+                className="w-full h-11 bg-[var(--accent-primary)] hover:opacity-90 text-white font-medium rounded-md transition-all"
+              >
+                Sign in as demo admin
+              </Button>
+              <button
+                type="button"
+                onClick={handleTourWizard}
+                className="w-full text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-2"
+              >
+                Tour the setup wizard
+              </button>
+              <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] uppercase tracking-wide">
+                <span className="flex-1 h-px bg-[var(--border-subtle)]" />
+                <span>or sign in manually</span>
+                <span className="flex-1 h-px bg-[var(--border-subtle)]" />
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>

@@ -1,3 +1,4 @@
-import { healthHandler } from './health';
+import { authHandlers } from './auth';
+import { installationHandlers } from './installation';
 
-export const handlers = [healthHandler];
+export const handlers = [...authHandlers, ...installationHandlers];

@@ -32,3 +32,6 @@ AtlaXia_Brand_Philosophy.md
 
 # Vercel deploy artifacts
 .vercel
+
+# Source-asset staging (logos, screenshots, etc. — bundled copies live in public/)
+imgs/
