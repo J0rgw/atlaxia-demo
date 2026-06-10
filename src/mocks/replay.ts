@@ -203,6 +203,39 @@ class ReplayEngine {
     return { sensors: this.latest ?? {}, timestamp: this.bootTs + this.tickIndex * TICK_MS };
   }
 
+  /**
+   * Sensor-list view used by /api/machines/sensors and /api/machines/snapshot's
+   * `devices` field. One entry per mapped sensor, value pulled from the
+   * latest tick, unit pulled from demo-sensors.json.
+   */
+  getSensorList() {
+    const ts = this.now();
+    const list = Object.keys(this.mapping).map((tag) => {
+      const m = this.mapping[tag];
+      const value = this.latest?.[tag] ?? null;
+      return {
+        key: tag,
+        name: m.display_name ?? tag,
+        device_id: `device-${tag.toLowerCase()}`,
+        device_name: m.process_area ?? 'PX',
+        value,
+        timestamp: ts,
+        unit: m.unit,
+      };
+    });
+    const devices = Array.from(new Set(list.map((s) => s.device_name))).map((dn) => ({
+      id: `device-${dn.toLowerCase()}`,
+      name: dn,
+      online: true,
+    }));
+    return {
+      sensors: list,
+      devices,
+      last_update: ts,
+      total: list.length,
+    };
+  }
+
   getControlIndicators(): ControlIndicators {
     // Calidad / Caudal / Temperatura / Factor humano: derive a rolling stability
     // score from the variance of recent values across analytical / flow /

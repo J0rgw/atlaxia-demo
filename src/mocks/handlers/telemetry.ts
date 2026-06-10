@@ -11,4 +11,6 @@ export const telemetryHandlers = [
     const snap = replay.getSnapshot();
     return HttpResponse.json({ sensors: snap.sensors, timestamp: snap.timestamp });
   }),
+
+  http.get('/api/machines/sensors', () => HttpResponse.json(replay.getSensorList())),
 ];
