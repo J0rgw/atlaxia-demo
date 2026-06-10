@@ -1,0 +1,32 @@
+[
+  {
+    "id": 101,
+    "username": "tech-rodrigo",
+    "email": "rodrigo@demo-plant.local",
+    "role": "tecnico",
+    "is_active": true,
+    "restricted_pages": null,
+    "restricted_sensors": null,
+    "elevated_permissions": ["manage_alerts"]
+  },
+  {
+    "id": 102,
+    "username": "tech-elena",
+    "email": "elena@demo-plant.local",
+    "role": "tecnico",
+    "is_active": true,
+    "restricted_pages": ["settings", "policies"],
+    "restricted_sensors": null,
+    "elevated_permissions": []
+  },
+  {
+    "id": 103,
+    "username": "tech-marc",
+    "email": "marc@demo-plant.local",
+    "role": "tecnico",
+    "is_active": false,
+    "restricted_pages": null,
+    "restricted_sensors": ["AIT401", "AIT402"],
+    "elevated_permissions": ["manage_network"]
+  }
+]

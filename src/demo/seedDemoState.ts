@@ -1,6 +1,8 @@
 import { useInstallationStore } from '@/stores/installationStore';
 import { useVariablesStore } from '@/stores/variablesStore';
+import { useCustomPagesStore } from '@/stores/customPagesStore';
 import type { SensorMapping, SensorCategory, PageId, AdminUserSetup } from '@/types/installation';
+import type { CustomPageState } from '@/types/customPages';
 
 interface DemoSensorsFixture {
   categories: SensorCategory[];
@@ -57,5 +59,29 @@ export async function seedDemoState() {
   const variablesState = useVariablesStore.getState();
   if (variablesState.widgets.length === 0) {
     variablesState.setWidgets([{ id: 'LIT301', size: 'half' }]);
+  }
+
+  // Seed one custom page so the sidebar shows the feature without forcing the
+  // visitor to create one first.
+  const customState = useCustomPagesStore.getState();
+  if (customState.pages.length === 0) {
+    const seeded: CustomPageState = {
+      definition: {
+        id: 'custom-demo01',
+        name: 'Plant overview (custom)',
+        icon: 'layout-dashboard',
+        slug: 'plant-overview',
+        createdAt: new Date(0).toISOString(),
+        enabled: true,
+        order: 0,
+      },
+      widgets: [
+        { id: 'kpi-strip', size: 'full' },
+        { id: 'radar', size: 'half' },
+        { id: 'anomaly-scatter', size: 'half' },
+        { id: 'event-log', size: 'full' },
+      ],
+    };
+    useCustomPagesStore.setState({ pages: [seeded] });
   }
 }
