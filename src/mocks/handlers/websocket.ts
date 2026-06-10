@@ -57,8 +57,28 @@ export const websocketHandlers = [
       }
     });
 
+    const unsubscribeAlerts = replay.subscribeNetworkAlerts((alert) => {
+      client.send(
+        JSON.stringify({
+          type: 'network_alert',
+          timestamp: alert.timestamp,
+          alert: {
+            id: alert.id,
+            alertType: alert.alertType,
+            name: alert.name,
+            macOrigin: alert.macOrigin,
+            macDestination: alert.macDestination,
+            ipOrigin: alert.ipOrigin,
+            ipDestination: alert.ipDestination,
+            timestamp: alert.timestamp,
+          },
+        }),
+      );
+    });
+
     client.addEventListener('close', () => {
       unsubscribe();
+      unsubscribeAlerts();
     });
   }),
 ];

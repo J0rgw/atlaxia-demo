@@ -14,6 +14,7 @@ import Papa from 'papaparse';
 
 const CSV_URL = '/swat/swat_jul2019_v2_clean.csv';
 const SENSORS_URL = '/swat/demo-sensors.json';
+const ATTACKS_URL = '/swat/swat_attacks.json';
 
 // Loop the documented normal-regime slice (rows 0..NORMAL_END exclusive).
 // The SWAT v2 metadata pins normal_period at the first ~9400 rows.
@@ -43,12 +44,39 @@ interface DemoSensorsFixture {
 
 interface AttackOverride {
   id: string;
+  label: string;
   rowStart: number;
   rowEnd: number;
   anomalySensors: string[];
   expectedAlarms?: string[];
   networkAlert?: string;
   injectedAt: number;
+}
+
+export interface AttackManifestEntry {
+  id: string;
+  label: string;
+  process: string;
+  row_start: number;
+  row_end: number;
+  anomaly_sensors: string[];
+  expected_alarms?: string[];
+  network_alert?: string;
+  intent: string;
+}
+
+export interface DemoNetworkAlert {
+  id: number;
+  alertType: 'Emergencia' | 'Alerta' | 'Aviso';
+  name: string;
+  macOrigin: string;
+  macDestination: string;
+  ipOrigin: string;
+  ipDestination: string;
+  date: string;
+  timestamp: number;
+  acknowledged: boolean;
+  acknowledgedAt: string | null;
 }
 
 interface ControlIndicators {
@@ -132,16 +160,22 @@ class ReplayEngine {
   private latestInferences: Record<string, InferenceLike> = {};
   private modelNames = ['cognn-demo', 'stgnn-demo'];
   private initialized: Promise<void> | null = null;
+  private attackManifest: AttackManifestEntry[] = [];
+  private networkAlerts: DemoNetworkAlert[] = [];
+  private networkAlertListeners = new Set<(alert: DemoNetworkAlert) => void>();
+  private nextAlertId = 1;
 
   /** Lazy idempotent init — loads CSV + mapping and starts the tick. */
   init(): Promise<void> {
     if (this.initialized) return this.initialized;
     this.initialized = (async () => {
-      const [csvText, fixture] = await Promise.all([
+      const [csvText, fixture, attacks] = await Promise.all([
         fetch(CSV_URL).then((r) => r.text()),
         fetch(SENSORS_URL).then((r) => r.json() as Promise<DemoSensorsFixture>),
+        fetch(ATTACKS_URL).then((r) => r.ok ? r.json() as Promise<AttackManifestEntry[]> : []).catch(() => []),
       ]);
       this.mapping = fixture.mapping;
+      this.attackManifest = attacks;
       const parsed = Papa.parse<Record<string, string>>(csvText, {
         header: true,
         dynamicTyping: false,
@@ -195,6 +229,67 @@ class ReplayEngine {
   injectAttack(att: Omit<AttackOverride, 'injectedAt'>) {
     this.attack = { ...att, injectedAt: Date.now() };
     this.cursor = att.rowStart;
+    if (att.networkAlert) {
+      const alert = this.makeNetworkAlert(att);
+      this.networkAlerts.unshift(alert);
+      if (this.networkAlerts.length > 200) this.networkAlerts.length = 200;
+      for (const l of this.networkAlertListeners) {
+        try { l(alert); } catch { /* swallow */ }
+      }
+    }
+  }
+
+  injectAttackById(id: string) {
+    const entry = this.attackManifest.find((a) => a.id === id);
+    if (!entry) return false;
+    this.injectAttack({
+      id: entry.id,
+      label: entry.label,
+      rowStart: entry.row_start,
+      rowEnd: entry.row_end,
+      anomalySensors: entry.anomaly_sensors,
+      expectedAlarms: entry.expected_alarms,
+      networkAlert: entry.network_alert,
+    });
+    return true;
+  }
+
+  listAttacks(): AttackManifestEntry[] {
+    return this.attackManifest;
+  }
+
+  subscribeNetworkAlerts(listener: (alert: DemoNetworkAlert) => void): () => void {
+    this.networkAlertListeners.add(listener);
+    return () => this.networkAlertListeners.delete(listener);
+  }
+
+  getNetworkAlerts(params?: { limit?: number; offset?: number; alertType?: string }) {
+    const all = this.networkAlerts;
+    let filtered = params?.alertType ? all.filter((a) => a.alertType === params.alertType) : all;
+    const offset = params?.offset ?? 0;
+    const limit = params?.limit ?? 50;
+    const slice = filtered.slice(offset, offset + limit);
+    const byType: Record<string, number> = { Emergencia: 0, Alerta: 0, Aviso: 0 };
+    for (const a of all) byType[a.alertType] = (byType[a.alertType] ?? 0) + 1;
+    return { alerts: slice, total: filtered.length, offset, limit, byType };
+  }
+
+  private makeNetworkAlert(att: Omit<AttackOverride, 'injectedAt'>): DemoNetworkAlert {
+    const ts = this.now();
+    const date = new Date(ts).toISOString();
+    return {
+      id: this.nextAlertId++,
+      alertType: 'Emergencia',
+      name: att.networkAlert ?? `attack:${att.id}`,
+      macOrigin: '00:1B:44:11:3A:B7',
+      macDestination: '00:25:90:6A:7E:11',
+      ipOrigin: '10.10.20.42',
+      ipDestination: '10.10.40.10',
+      date,
+      timestamp: ts,
+      acknowledged: false,
+      acknowledgedAt: null,
+    };
   }
 
   // ----- view caches (REST handlers) -----

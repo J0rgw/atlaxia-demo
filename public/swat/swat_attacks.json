@@ -1,0 +1,68 @@
+[
+  {
+    "id": "att-lit301-spoof",
+    "label": "Spoof LIT301 to 1024 mm",
+    "process": "P3",
+    "row_start": 9807,
+    "row_end": 10067,
+    "anomaly_sensors": ["LIT301"],
+    "expected_alarms": ["LIT301_HIGH"],
+    "network_alert": "spoof_modbus_write",
+    "intent": "Falsely raise UF tank level — could lead to underflow when attack ends."
+  },
+  {
+    "id": "att-fit401-spoof",
+    "label": "Spoof FIT401 0.8 -> 0.5 m3/h",
+    "process": "P4",
+    "row_start": 9420,
+    "row_end": 9524,
+    "anomaly_sensors": ["FIT401"],
+    "expected_alarms": ["FIT401_LOW"],
+    "network_alert": "spoof_modbus_write",
+    "intent": "Stop dechlorination by tricking UV401 into shutting off."
+  },
+  {
+    "id": "att-p601-switch",
+    "label": "P601 backwash actuator ON",
+    "process": "P6",
+    "row_start": 10513,
+    "row_end": 10742,
+    "anomaly_sensors": ["FIT601"],
+    "expected_alarms": ["FIT601_HIGH"],
+    "network_alert": "unauthorized_modbus_write",
+    "intent": "Force backwash pump on, increase raw water tank inflow."
+  },
+  {
+    "id": "att-mv201-p101-multi",
+    "label": "MV201 + P101 multi-point",
+    "process": "P1/P2/P3",
+    "row_start": 11225,
+    "row_end": 11696,
+    "anomaly_sensors": ["FIT201", "LIT301"],
+    "expected_alarms": ["LIT301_HIGH"],
+    "network_alert": "coordinated_actuator_attack",
+    "intent": "Coordinated valve+pump manipulation, drive T301 overflow."
+  },
+  {
+    "id": "att-mv501-toggle",
+    "label": "MV501 rapid state toggle",
+    "process": "P5",
+    "row_start": 12137,
+    "row_end": 12295,
+    "anomaly_sensors": ["PIT501", "FIT501"],
+    "expected_alarms": ["PIT501_HIGH"],
+    "network_alert": "burst_modbus_writes",
+    "intent": "Rapidly cycle MV501 to drain the RO loop."
+  },
+  {
+    "id": "att-p301-off",
+    "label": "P301 UF pump OFF",
+    "process": "P3",
+    "row_start": 12666,
+    "row_end": 13507,
+    "anomaly_sensors": ["FIT301", "LIT301"],
+    "expected_alarms": ["FIT301_LOW", "LIT301_HIGH"],
+    "network_alert": "actuator_shutdown",
+    "intent": "Halt UF process by shutting off P301."
+  }
+]
