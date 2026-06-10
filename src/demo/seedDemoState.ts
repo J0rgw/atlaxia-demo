@@ -1,5 +1,5 @@
 import { useInstallationStore } from '@/stores/installationStore';
-import type { SensorMapping, SensorCategory, PageId } from '@/types/installation';
+import type { SensorMapping, SensorCategory, PageId, AdminUserSetup } from '@/types/installation';
 
 interface DemoSensorsFixture {
   categories: SensorCategory[];
@@ -11,6 +11,8 @@ interface DemoPagesFixture {
   enabled: PageId[];
   default: PageId;
 }
+
+type DemoAdminFixture = AdminUserSetup;
 
 async function fetchJson<T>(path: string): Promise<T | null> {
   try {
@@ -42,5 +44,10 @@ export async function seedDemoState() {
       enabled: pages.enabled,
       default: pages.default,
     });
+  }
+
+  const admin = await fetchJson<DemoAdminFixture>('/swat/demo-admin.json');
+  if (admin) {
+    store.updateAdminUser(admin);
   }
 }
