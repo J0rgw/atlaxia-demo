@@ -2,8 +2,8 @@
   "setup_completed": true,
   "installation_name": "AtlaXia Demo Plant",
   "logo_url": "/swat/logo.png",
-  "theme_primary": "#0D9488",
-  "theme_secondary": "#0EA5E9",
-  "theme_accent": "#F59E0B",
+  "theme_primary": "#58a6ff",
+  "theme_secondary": "#bc8cff",
+  "theme_accent": "#d29922",
   "theme_variant": "scada"
 }
