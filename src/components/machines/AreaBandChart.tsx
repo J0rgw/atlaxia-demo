@@ -275,10 +275,18 @@ export function AreaBandChart({
       const step = (normalRange.max - normalRange.min) / 4;
       const stepsBelow = Math.max(1, Math.ceil((normalRange.min - dMin) / step) + 1);
       const stepsAbove = Math.max(1, Math.ceil((dMax - normalRange.max) / step) + 1);
-      const aMin = normalRange.min - stepsBelow * step;
-      const aMax = normalRange.max + stepsAbove * step;
-      const decimals = Math.max(0, Math.min(4, Math.ceil(-Math.log10(step))));
-      return { min: aMin, max: aMax, interval: step, decimals };
+      // Safety net: if the data extent is so far outside the survey range that
+      // we'd draw 40+ gridlines, the survey ranges are almost certainly the
+      // wrong units for the data (mislabelled CSV column, miscalibrated mock,
+      // etc.). Fall through to data-driven scaling instead of carpeting the
+      // chart with split-lines.
+      const MAX_EXTRA_STEPS = 20;
+      if (stepsBelow + stepsAbove <= MAX_EXTRA_STEPS) {
+        const aMin = normalRange.min - stepsBelow * step;
+        const aMax = normalRange.max + stepsAbove * step;
+        const decimals = Math.max(0, Math.min(4, Math.ceil(-Math.log10(step))));
+        return { min: aMin, max: aMax, interval: step, decimals };
+      }
     }
 
     const pad = (dMax - dMin) * 0.08 || Math.abs(dMax) * 0.08 || 1;
@@ -313,21 +321,44 @@ export function AreaBandChart({
 
   const markPointData = useMemo(() => {
     if (sensorInferences.length === 0) return [];
-    // Anchor pins to the top of the data extent. ECharts honours coordinate
-    // values outside the rendered range, so the pin sits visually at the
-    // upper edge regardless of yAxis padding. Without dataExtent (empty
-    // series) we'd have no inferences to render anyway.
+    // Two render modes per inference event:
+    //  - Per-sensor prediction → red highlighted dot at the AI's predicted y.
+    //    Shows divergence between what the model expected and the spoofed
+    //    sensor reading.
+    //  - Process-level severity only → pin at the top of yDomain (legacy
+    //    behaviour). ECharts honours coordinates outside the rendered range,
+    //    so the pin sits at the upper edge regardless of axis padding.
     const topY = dataExtent ? dataExtent[1] : 0;
     return sensorInferences
       .filter((e) => e.ts >= startTs && e.ts <= endTs)
-      .map((e) => ({
-        coord: [e.ts, topY] as [number, number],
-        itemStyle: { color: severityColor(e.level) },
-        symbol: 'pin',
-        symbolSize: 22,
-        label: { show: false },
-        value: e.levelName,
-      }));
+      .map((e) => {
+        if (e.predictedValue != null) {
+          return {
+            coord: [e.ts, e.predictedValue] as [number, number],
+            itemStyle: {
+              color: '#f85149',
+              borderColor: '#ffffff',
+              borderWidth: 1.5,
+              shadowBlur: 8,
+              shadowColor: 'rgba(248, 81, 73, 0.55)',
+            },
+            symbol: 'circle',
+            symbolSize: 10,
+            label: { show: false },
+            value: e.actualValue != null
+              ? `AI predicción ${e.predictedValue.toFixed(2)} · real ${e.actualValue.toFixed(2)}`
+              : `AI predicción ${e.predictedValue.toFixed(2)}`,
+          };
+        }
+        return {
+          coord: [e.ts, topY] as [number, number],
+          itemStyle: { color: severityColor(e.level) },
+          symbol: 'pin',
+          symbolSize: 22,
+          label: { show: false },
+          value: e.levelName,
+        };
+      });
   }, [sensorInferences, startTs, endTs, dataExtent]);
 
   const markLineData = useMemo(() => {
@@ -383,28 +414,21 @@ export function AreaBandChart({
     width: 1.2,
     opacity: 0.85,
   });
-  const surveyLabel = (color: string, text: string) => ({
-    show: true,
-    position: 'insideEndTop' as const,
-    formatter: text,
-    color,
-    fontSize: 10,
-    fontWeight: 600,
-    backgroundColor: 'rgba(13, 17, 23, 0.7)',
-    padding: [2, 4] as [number, number],
-    borderRadius: 2,
-  });
+  // Survey markLines render as bare dashed lines — the "Rango normal" caption
+  // above the chart already names the bounds, so adding a chip per line just
+  // adds noise to the canvas.
+  const surveyLabel = { show: false } as const;
   const surveyMarkLines: Array<Record<string, unknown>> = [];
   if (normalRange) {
     surveyMarkLines.push(
-      { yAxis: normalRange.min, lineStyle: surveyLineStyle(SURVEY_NORMAL_COLOR), label: surveyLabel(SURVEY_NORMAL_COLOR, `min ${normalRange.min}`) },
-      { yAxis: normalRange.max, lineStyle: surveyLineStyle(SURVEY_NORMAL_COLOR), label: surveyLabel(SURVEY_NORMAL_COLOR, `max ${normalRange.max}`) },
+      { yAxis: normalRange.min, lineStyle: surveyLineStyle(SURVEY_NORMAL_COLOR), label: surveyLabel },
+      { yAxis: normalRange.max, lineStyle: surveyLineStyle(SURVEY_NORMAL_COLOR), label: surveyLabel },
     );
   }
   if (warningRange) {
     surveyMarkLines.push(
-      { yAxis: warningRange.min, lineStyle: surveyLineStyle(SURVEY_WARNING_COLOR), label: surveyLabel(SURVEY_WARNING_COLOR, `warn ${warningRange.min}`) },
-      { yAxis: warningRange.max, lineStyle: surveyLineStyle(SURVEY_WARNING_COLOR), label: surveyLabel(SURVEY_WARNING_COLOR, `warn ${warningRange.max}`) },
+      { yAxis: warningRange.min, lineStyle: surveyLineStyle(SURVEY_WARNING_COLOR), label: surveyLabel },
+      { yAxis: warningRange.max, lineStyle: surveyLineStyle(SURVEY_WARNING_COLOR), label: surveyLabel },
     );
   }
   const combinedMarkLineData = [...surveyMarkLines, ...markLineData];
@@ -574,7 +598,6 @@ export function AreaBandChart({
                 <span className="text-[var(--text-muted)] font-normal text-xs">({displayUnit})</span>
               )}
             </CardTitle>
-            {showLive && <LiveIndicator />}
             {isStale && mode === 'historic' && (
               <span className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">
                 Refreshing…

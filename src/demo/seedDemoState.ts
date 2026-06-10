@@ -28,14 +28,14 @@ async function fetchJson<T>(path: string): Promise<T | null> {
 }
 
 export async function seedDemoState() {
-  // Reset the theme to dark on every demo boot. The product writes the
+  // Reset the theme to light on every demo boot. The product writes the
   // wizard's previewMode toggle to localStorage, which would otherwise
-  // sticky-stick across sessions and pin the next demo render to light.
-  // Visitor toggles within a session still work; the reload always resets.
+  // sticky-stick across sessions. Visitor toggles within a session still
+  // work; the reload always resets to light.
   try {
-    localStorage.setItem('theme-mode', 'dark');
+    localStorage.setItem('theme-mode', 'light');
   } catch {
-    // Storage unavailable — bootstrap defaults already prefer dark.
+    // Storage unavailable — bootstrap defaults take over.
   }
 
   const store = useInstallationStore.getState();

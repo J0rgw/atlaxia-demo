@@ -38,8 +38,14 @@ interface DemoSensorMapping {
   criticality?: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
+interface DemoSensorCategory {
+  id: string;
+  sensors: string[];
+}
+
 interface DemoSensorsFixture {
   mapping: Record<string, DemoSensorMapping>;
+  categories: DemoSensorCategory[];
 }
 
 interface AttackOverride {
@@ -165,6 +171,15 @@ class ReplayEngine {
   private networkAlerts: DemoNetworkAlert[] = [];
   private networkAlertListeners = new Set<(alert: DemoNetworkAlert) => void>();
   private nextAlertId = 1;
+  // Per-sensor AI prediction baseline captured at the moment an attack is
+  // injected. During the attack window emitInferences() ships these values
+  // alongside the actual readings so the chart can draw the red "AI thinks
+  // it should be here" dot vs. the spoofed trace. Cleared on attack end.
+  private attackBaselines: Record<string, number> = {};
+  // Process area letter (e.g. 'P1') → demo-sensors.json category id (e.g.
+  // 'p1_captacion'). useSensorInferences looks up per_process by category id,
+  // not by mapping.process_area, so we need both sides of the mapping.
+  private processAreaToCategoryId: Record<string, string> = {};
 
   /** Lazy idempotent init — loads CSV + mapping and starts the tick. */
   init(): Promise<void> {
@@ -186,6 +201,15 @@ class ReplayEngine {
         ]);
         this.mapping = fixture.mapping;
         this.attackManifest = attacks;
+        // Build the process-letter → category-id lookup once. Category ids in
+        // demo-sensors.json follow the "p1_captacion" convention; we key the
+        // map by the uppercase letter prefix so mapping.process_area ('P1')
+        // resolves cleanly to the runtime category id.
+        this.processAreaToCategoryId = {};
+        for (const cat of fixture.categories ?? []) {
+          const prefix = cat.id.split('_')[0];
+          if (prefix) this.processAreaToCategoryId[prefix.toUpperCase()] = cat.id;
+        }
         const parsed = Papa.parse<Record<string, string>>(csvText, {
           header: true,
           dynamicTyping: false,
@@ -233,6 +257,7 @@ class ReplayEngine {
     this.latest = null;
     this.latestInferences = {};
     this.networkAlerts = [];
+    this.attackBaselines = {};
   }
 
   seedNetworkAlerts(alerts: DemoNetworkAlert[]) {
@@ -253,6 +278,22 @@ class ReplayEngine {
   injectAttack(att: Omit<AttackOverride, 'injectedAt'>) {
     this.attack = { ...att, injectedAt: Date.now() };
     this.cursor = att.rowStart;
+    // Capture the AI's "what it should be" baseline for each anomaly sensor
+    // before the cursor jumps into the spoofed window. Prefer the trailing
+    // mean of the trend buffer (what the model saw just before the spoof);
+    // fall back to the survey midrange if cold-started with no trend yet.
+    this.attackBaselines = {};
+    for (const tag of att.anomalySensors) {
+      const series = this.trend[tag];
+      if (series && series.length > 0) {
+        this.attackBaselines[tag] = series.reduce((a, b) => a + b, 0) / series.length;
+        continue;
+      }
+      const m = this.mapping[tag];
+      if (m && m.min != null && m.max != null) {
+        this.attackBaselines[tag] = (m.min + m.max) / 2;
+      }
+    }
     if (att.networkAlert) {
       const alert = this.makeNetworkAlert(att);
       this.networkAlerts.unshift(alert);
@@ -571,7 +612,10 @@ class ReplayEngine {
       const advanced = (this.cursor - att.rowStart) % span;
       i = att.rowStart + advanced;
       this.cursor += 1;
-      if (this.cursor - att.rowStart >= span) this.attack = null;
+      if (this.cursor - att.rowStart >= span) {
+        this.attack = null;
+        this.attackBaselines = {};
+      }
     } else {
       i = this.cursor % NORMAL_END;
       this.cursor += 1;
@@ -655,6 +699,32 @@ class ReplayEngine {
       : alarms.length > 0
         ? 'LOW'
         : 'NORMAL';
+
+    // Build per_process + per-sensor predictions for the current attack window.
+    // useSensorInferences resolves a sensor to its category-id (e.g.
+    // 'p1_captacion') and needs per_process keyed by that id to surface a
+    // marker at all. We also ship the AI's "predicted" baseline alongside the
+    // actual reading so the chart can draw the red dot where the model thinks
+    // the value should be.
+    const perProcess: Record<string, { score: number; level: number; level_name: InferenceLike['level_global_name'] }> = {};
+    const predictions: Record<string, { predicted: number; actual: number }> = {};
+    if (this.attack) {
+      const impacted = new Set<string>();
+      for (const tag of this.attack.anomalySensors) {
+        const m = this.mapping[tag];
+        const pid = m?.process_area && this.processAreaToCategoryId[m.process_area];
+        if (pid) impacted.add(pid);
+        const predicted = this.attackBaselines[tag];
+        const actual = this.latest?.[tag];
+        if (predicted !== undefined && actual !== undefined && Number.isFinite(actual)) {
+          predictions[tag] = { predicted, actual };
+        }
+      }
+      for (const pid of impacted) {
+        perProcess[pid] = { score: 0.85, level: 4, level_name: 'HIGH' };
+      }
+    }
+
     for (const name of this.modelNames) {
       const msg: InferenceLike = {
         type: 'inference',
@@ -672,7 +742,8 @@ class ReplayEngine {
         level_global: levelGlobal,
         level_global_name: levelName,
         plant: { score: isAttack ? 0.9 : 0.05, level: levelGlobal, level_name: levelName },
-        per_process: {},
+        per_process: perProcess,
+        predictions,
         devices: {},
         alarms_derived: { plant: isAttack || alarms.length > 0, per_process: {}, devices: {} },
         alarms_debounced: {
@@ -711,7 +782,10 @@ interface InferenceLike {
   level_global: number;
   level_global_name: 'NORMAL' | 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'UNKNOWN';
   plant: { score: number; level: number; level_name: InferenceLike['level_global_name'] } | null;
-  per_process: Record<string, unknown>;
+  per_process: Record<string, { score: number; level: number; level_name: InferenceLike['level_global_name'] }>;
+  /** Per-sensor predicted-vs-actual surfacing the red AI dot on telemetry charts.
+   *  Only populated for the anomaly sensors of the current attack window. */
+  predictions: Record<string, { predicted: number; actual: number }>;
   devices: Record<string, unknown>;
   alarms_derived: { plant: boolean; per_process: Record<string, boolean>; devices: Record<string, boolean> };
   alarms_debounced: { plant: boolean; per_process: Record<string, boolean>; devices: Record<string, boolean>; kofn: { k: number; n: number } };

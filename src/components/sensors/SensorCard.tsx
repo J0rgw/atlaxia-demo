@@ -356,73 +356,43 @@ export function SensorCard({
         className
       )}
     >
-      {/* Header with status dot */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Status indicator dot */}
-            <span className={cn('w-2 h-2 rounded-full flex-shrink-0', config.dotColor)} />
-            <h3 className="font-bold text-[var(--text-primary)] text-sm">{sensor.tag}</h3>
-            <LiveIndicator isLive={isLive} />
-            {alarmLevel && (
-              <span className="text-xs font-bold text-[var(--status-critical)] animate-pulse">
-                {ALARM_LEVEL_LABELS[alarmLevel]}
-              </span>
+      {/* Header: tag · ISA state · favorite */}
+      <div className="flex items-start justify-between mb-3 gap-2">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <h3 className="font-bold text-[var(--text-primary)] text-sm">{sensor.tag}</h3>
+          <span
+            className={cn(
+              'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider',
+              config.badgeBg,
+              config.badgeText,
             )}
-          </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-xs text-[var(--text-secondary)] truncate flex-1">
-              {sensor.description.short}
-            </p>
-            <FreshnessBadge timestamp={timestamp} />
-          </div>
+          >
+            {config.label}
+          </span>
         </div>
-        <div className="flex items-center gap-1">
-          {onFavoriteToggle && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onFavoriteToggle(); }}
-              className="p-1 rounded hover:bg-white/50 transition-colors"
-              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+        {onFavoriteToggle && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onFavoriteToggle(); }}
+            className="p-1 -m-1 rounded hover:bg-white/50 transition-colors flex-shrink-0"
+            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <svg
+              className={cn(
+                'w-4 h-4',
+                isFavorite ? 'text-[var(--status-warning)] fill-[var(--status-warning)]' : 'text-[var(--text-muted)]'
+              )}
+              viewBox="0 0 20 20"
+              fill={isFavorite ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              strokeWidth={1.5}
             >
-              <svg
-                className={cn(
-                  'w-4 h-4',
-                  isFavorite ? 'text-[var(--status-warning)] fill-[var(--status-warning)]' : 'text-[var(--text-muted)]'
-                )}
-                viewBox="0 0 20 20"
-                fill={isFavorite ? 'currentColor' : 'none'}
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </button>
-          )}
-          {onInfoClick && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onInfoClick(); }}
-              className="p-1 rounded hover:bg-white/50 transition-colors"
-              aria-label="View details"
-            >
-              <svg
-                className="w-4 h-4 text-[var(--text-muted)]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </button>
-          )}
-        </div>
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </button>
+        )}
       </div>
 
-      {/* Value Display with Animation - Large for visibility */}
+      {/* Big value */}
       <div className="flex items-baseline gap-2 mb-3">
         {hasData ? (
           <>
@@ -441,101 +411,8 @@ export function SensorCard({
         )}
       </div>
 
-      {/* Progress Bar */}
-      <div className="mb-3">
-        <ProgressBar
-          value={value}
-          min={sensor.operatingLimits.normal.min}
-          max={sensor.operatingLimits.normal.max}
-          status={status}
-        />
-        <div className="flex justify-between mt-1">
-          <span className="text-xs text-[var(--text-secondary)]">
-            {sensor.operatingLimits.normal.min}
-          </span>
-          <span className="text-xs text-[var(--text-secondary)]">
-            {sensor.operatingLimits.normal.max}
-          </span>
-        </div>
-      </div>
-
-      {/* Status Badge and Range */}
-      <div className="flex items-center justify-between mb-2">
-        <span
-          className={cn(
-            'inline-flex items-center px-2 py-0.5 rounded text-xs font-bold',
-            config.badgeBg,
-            config.badgeText
-          )}
-        >
-          {config.label}
-        </span>
-        <span className="text-xs text-[var(--text-secondary)]">
-          Normal: {rangeText} {sensor.engineering.unit}
-        </span>
-      </div>
-
-      {/* Footer: Trend and AI Confidence */}
-      <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]">
-        <div className="flex items-center gap-2">
-          {sparklineData && sparklineData.length > 0 && (
-            <Sparkline
-              data={sparklineData}
-              className={
-                trend === 'up'
-                  ? 'text-[var(--status-normal)]'
-                  : trend === 'down'
-                  ? 'text-[var(--status-critical)]'
-                  : 'text-[var(--text-muted)]'
-              }
-            />
-          )}
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-[var(--text-secondary)]">Trend:</span>
-            <TrendIndicator trend={trend} percent={trendPercent} />
-          </div>
-        </div>
-
-        {aiConfidence !== undefined && (
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-[var(--text-secondary)]">AI:</span>
-            <span
-              className={cn(
-                'text-xs font-medium',
-                aiConfidence >= 0.9
-                  ? 'text-[var(--status-normal)]'
-                  : aiConfidence >= 0.7
-                  ? 'text-[var(--status-warning)]'
-                  : 'text-[var(--status-critical)]'
-              )}
-            >
-              {(aiConfidence * 100).toFixed(0)}%
-            </span>
-          </div>
-        )}
-
-        {onChartClick && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onChartClick(); }}
-            className="p-1 rounded hover:bg-white/50 transition-colors"
-            aria-label="View chart"
-          >
-            <svg
-              className="w-4 h-4 text-[var(--text-muted)]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-          </button>
-        )}
-      </div>
+      {/* Call-to-action: entire card is clickable; this line tells the user. */}
+      <p className="text-xs text-[var(--text-muted)]">Clic para ver el gráfico</p>
     </div>
   );
 }

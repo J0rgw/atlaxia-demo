@@ -9,11 +9,6 @@ import { useInstallationStore } from '@/stores/installationStore';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { TelemetryProvider } from '@/contexts/TelemetryContext';
 
-const IS_DEMO = import.meta.env.MODE === 'demo';
-const AttackHud = IS_DEMO
-  ? lazy(() => import('@/demo/AttackHud').then((m) => ({ default: m.AttackHud })))
-  : null;
-
 const SetupWizard = lazy(() =>
   import('@/pages/setup/SetupWizard').then((m) => ({ default: m.SetupWizard }))
 );
@@ -232,11 +227,6 @@ function App() {
           </Routes>
           </Suspense>
         </AppLayout>
-        {AttackHud && (
-          <Suspense fallback={null}>
-            <AttackHud />
-          </Suspense>
-        )}
       </TelemetryProvider>
     </ThemeProvider>
   );

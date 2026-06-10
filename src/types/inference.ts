@@ -58,6 +58,17 @@ export interface InferenceObservability {
   sensor_health: Record<string, SensorHealth> | null;
 }
 
+/**
+ * Per-sensor AI prediction. Optional, demo-only at the moment: the publisher
+ * ships the value the model expected vs. the value the sensor actually
+ * reported so the frontend can render the divergence (the red "AI thinks it
+ * should be here" dot on telemetry charts).
+ */
+export interface SensorPrediction {
+  predicted: number;
+  actual: number;
+}
+
 export interface InferenceMessage {
   type: 'inference';
   channel: 'inferences';
@@ -70,6 +81,8 @@ export interface InferenceMessage {
   level_global_name: LevelName;
   plant: LayerEntry | null;
   per_process: Record<string, LayerEntry>;
+  /** Optional per-sensor predicted-vs-actual. Production publisher may omit. */
+  predictions?: Record<string, SensorPrediction>;
   devices: Record<string, DeviceEntry>;
   alarms_derived: AlarmsBlock;
   alarms_debounced: AlarmsDebouncedBlock;

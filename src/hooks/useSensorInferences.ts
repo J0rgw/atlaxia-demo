@@ -22,6 +22,10 @@ export interface SensorInferenceEvent {
   levelName: LevelName;
   modelName: string;
   processId: string;
+  /** AI-predicted value at `ts` for this sensor (the "should-be" baseline). */
+  predictedValue?: number;
+  /** Sensor's actual reading at `ts`, when the publisher includes it. */
+  actualValue?: number;
 }
 
 // Threshold below which we don't emit a marker. 1 = INFO (informational, no
@@ -42,13 +46,30 @@ export function useSensorInferences(
   }, [displayTag, categories]);
 
   return useMemo<SensorInferenceEvent[]>(() => {
-    if (!processId || inferenceLog.length === 0) return [];
+    if (!displayTag || inferenceLog.length === 0) return [];
     const events: SensorInferenceEvent[] = [];
     for (const msg of inferenceLog) {
-      const layer = msg.per_process?.[processId];
-      if (!layer || layer.level < MIN_LEVEL) continue;
       const ts = Date.parse(msg.inference_ts);
       if (!Number.isFinite(ts)) continue;
+      // Prefer a per-sensor prediction (richest signal — gives the chart a
+      // concrete y to anchor the red dot to). Otherwise fall back to the
+      // process-level severity pin.
+      const pred = msg.predictions?.[displayTag];
+      if (pred) {
+        events.push({
+          ts,
+          level: 4,
+          levelName: 'HIGH',
+          modelName: msg.model_name,
+          processId: processId ?? '',
+          predictedValue: pred.predicted,
+          actualValue: pred.actual,
+        });
+        continue;
+      }
+      if (!processId) continue;
+      const layer = msg.per_process?.[processId];
+      if (!layer || layer.level < MIN_LEVEL) continue;
       events.push({
         ts,
         level: layer.level,
@@ -58,5 +79,5 @@ export function useSensorInferences(
       });
     }
     return events;
-  }, [processId, inferenceLog]);
+  }, [displayTag, processId, inferenceLog]);
 }
