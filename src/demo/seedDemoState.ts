@@ -1,4 +1,5 @@
 import { useInstallationStore } from '@/stores/installationStore';
+import { useVariablesStore } from '@/stores/variablesStore';
 import type { SensorMapping, SensorCategory, PageId, AdminUserSetup } from '@/types/installation';
 
 interface DemoSensorsFixture {
@@ -49,5 +50,12 @@ export async function seedDemoState() {
   const admin = await fetchJson<DemoAdminFixture>('/swat/demo-admin.json');
   if (admin) {
     store.updateAdminUser(admin);
+  }
+
+  // Seed a single LIT301 widget on the telemetry page so it never lands blank.
+  // Only when the visitor hasn't customized — respect persisted state.
+  const variablesState = useVariablesStore.getState();
+  if (variablesState.widgets.length === 0) {
+    variablesState.setWidgets([{ id: 'LIT301', size: 'half' }]);
   }
 }

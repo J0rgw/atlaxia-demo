@@ -204,6 +204,40 @@ class ReplayEngine {
   }
 
   /**
+   * Telemetry history slice. Maps wall-clock to row indices using
+   *   row = (now - ts) ms / TICK_MS, walked backwards from the current cursor.
+   * Returns one point per `step` ms in [startTs, endTs]. Aggregation other
+   * than NONE/AVG falls through to AVG.
+   */
+  getTelemetryHistory(keys: string[], startTs: number, endTs: number, step: number) {
+    const data: Record<string, Array<{ ts: number; value: string }>> = {};
+    if (this.rows.length === 0 || endTs <= startTs) {
+      for (const k of keys) data[k] = [];
+      return { data, startTs, endTs };
+    }
+    const span = NORMAL_END;
+    const now = this.now();
+    const stride = Math.max(1000, Math.floor(step));
+    for (const rawKey of keys) {
+      const key = canonicalKey(rawKey);
+      const series: Array<{ ts: number; value: string }> = [];
+      for (let t = Math.floor(startTs / stride) * stride; t <= endTs; t += stride) {
+        const ago = Math.max(0, Math.floor((now - t) / TICK_MS));
+        const idx = ((this.cursor - ago) % span + span) % span;
+        const row = this.rows[idx];
+        const v = row?.[key];
+        if (v === undefined) continue;
+        series.push({ ts: t, value: String(v) });
+      }
+      data[key] = series;
+      // Echo back the raw key the client asked for, in case it included a
+      // suffix or device prefix.
+      if (rawKey !== key) data[rawKey] = series;
+    }
+    return { data, startTs, endTs };
+  }
+
+  /**
    * Sensor-list view used by /api/machines/sensors and /api/machines/snapshot's
    * `devices` field. One entry per mapped sensor, value pulled from the
    * latest tick, unit pulled from demo-sensors.json.
