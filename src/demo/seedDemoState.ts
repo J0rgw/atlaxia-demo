@@ -1,5 +1,5 @@
 import { useInstallationStore } from '@/stores/installationStore';
-import type { SensorMapping, SensorCategory } from '@/types/installation';
+import type { SensorMapping, SensorCategory, PageId } from '@/types/installation';
 
 interface DemoSensorsFixture {
   categories: SensorCategory[];
@@ -7,23 +7,40 @@ interface DemoSensorsFixture {
   defaultSelected: string[];
 }
 
+interface DemoPagesFixture {
+  enabled: PageId[];
+  default: PageId;
+}
+
+async function fetchJson<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(path);
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 export async function seedDemoState() {
   const store = useInstallationStore.getState();
 
-  if (Object.keys(store.setupData.sensors_config.mapping).length > 0) {
-    return;
+  if (Object.keys(store.setupData.sensors_config.mapping).length === 0) {
+    const sensors = await fetchJson<DemoSensorsFixture>('/swat/demo-sensors.json');
+    if (sensors) {
+      store.updateSensorsConfig({
+        mapping: sensors.mapping,
+        categories: sensors.categories,
+        defaultSelected: sensors.defaultSelected,
+      });
+    }
   }
 
-  try {
-    const res = await fetch('/swat/demo-sensors.json');
-    if (!res.ok) return;
-    const fixture: DemoSensorsFixture = await res.json();
-    store.updateSensorsConfig({
-      mapping: fixture.mapping,
-      categories: fixture.categories,
-      defaultSelected: fixture.defaultSelected,
+  const pages = await fetchJson<DemoPagesFixture>('/swat/demo-pages.json');
+  if (pages) {
+    store.updatePagesConfig({
+      enabled: pages.enabled,
+      default: pages.default,
     });
-  } catch {
-    // Silent: a failed seed just leaves the wizard empty.
   }
 }

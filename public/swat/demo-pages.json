@@ -1,0 +1,15 @@
+{
+  "enabled": [
+    "overview",
+    "data-overview",
+    "machines",
+    "variables",
+    "anomalies",
+    "control",
+    "network-overview",
+    "network",
+    "alerts",
+    "policies"
+  ],
+  "default": "overview"
+}
