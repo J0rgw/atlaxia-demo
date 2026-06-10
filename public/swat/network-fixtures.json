@@ -1,0 +1,92 @@
+{
+  "devices": [
+    { "id": 1,  "name": "PLC-P1-AllenBradley",   "deviceType": "PLC",   "macAddress": "00:1B:44:11:3A:01", "ipAddress": "10.10.10.11", "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 2,  "name": "PLC-P2-Schneider",      "deviceType": "PLC",   "macAddress": "00:1B:44:11:3A:02", "ipAddress": "10.10.20.12", "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 3,  "name": "PLC-P3-AllenBradley",   "deviceType": "PLC",   "macAddress": "00:1B:44:11:3A:03", "ipAddress": "10.10.30.13", "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 4,  "name": "PLC-P4-Schneider",      "deviceType": "PLC",   "macAddress": "00:1B:44:11:3A:04", "ipAddress": "10.10.40.14", "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 5,  "name": "PLC-P5-AllenBradley",   "deviceType": "PLC",   "macAddress": "00:1B:44:11:3A:05", "ipAddress": "10.10.50.15", "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 6,  "name": "PLC-P6-Schneider",      "deviceType": "PLC",   "macAddress": "00:1B:44:11:3A:06", "ipAddress": "10.10.60.16", "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 7,  "name": "HMI-Operator-01",       "deviceType": "SCADA", "macAddress": "00:25:90:6A:7E:11", "ipAddress": "10.10.5.10",  "status": { "authorized": true,  "critical": false, "repairable": true  }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 8,  "name": "HMI-Operator-02",       "deviceType": "SCADA", "macAddress": "00:25:90:6A:7E:12", "ipAddress": "10.10.5.11",  "status": { "authorized": true,  "critical": false, "repairable": true  }, "importance": "Media", "lastSeen": 1759000000000 },
+    { "id": 9,  "name": "Engineering-Laptop",    "deviceType": "PC",    "macAddress": "F0:18:98:1B:22:01", "ipAddress": "10.10.5.50",  "status": { "authorized": true,  "critical": false, "repairable": true  }, "importance": "Media", "lastSeen": 1759000000000 },
+    { "id": 10, "name": "Snort-Sensor",          "deviceType": "Switch","macAddress": "B8:27:EB:99:11:22", "ipAddress": "10.10.5.200", "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 11, "name": "Core-Switch-DMZ",       "deviceType": "Switch","macAddress": "00:E0:4C:68:11:22", "ipAddress": "10.10.0.1",   "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 12, "name": "Router-Edge",           "deviceType": "Router","macAddress": "00:E0:4C:68:11:23", "ipAddress": "10.10.0.2",   "status": { "authorized": true,  "critical": true,  "repairable": false }, "importance": "Alta",  "lastSeen": 1759000000000 },
+    { "id": 13, "name": "Unknown-Laptop",        "deviceType": "PC",    "macAddress": "AC:DE:48:00:11:22", "ipAddress": "10.10.5.99",  "status": { "authorized": false, "critical": false, "repairable": true  }, "importance": "Baja",  "lastSeen": 1759000000000 },
+    { "id": 14, "name": "Wireless-AP-Guest",     "deviceType": "Router","macAddress": "5C:F9:38:00:11:22", "ipAddress": "10.10.99.1",  "status": { "authorized": false, "critical": false, "repairable": true  }, "importance": "Baja",  "lastSeen": 1759000000000 }
+  ],
+  "deviceCounts": [
+    { "deviceType": "PLC",    "count": 6, "icon": "cpu" },
+    { "deviceType": "SCADA",  "count": 2, "icon": "monitor" },
+    { "deviceType": "PC",     "count": 2, "icon": "laptop" },
+    { "deviceType": "Switch", "count": 2, "icon": "network" },
+    { "deviceType": "Router", "count": 2, "icon": "router" }
+  ],
+  "topology": {
+    "nodes": [
+      { "id": "router-edge", "label": "Router-Edge", "ip": "10.10.0.2", "deviceType": "Router", "importance": "Alta",  "isCritical": true,  "isAuthorized": true,  "vendor": "Cisco",     "lastSeen": 1759000000000 },
+      { "id": "core-switch", "label": "Core-Switch-DMZ", "ip": "10.10.0.1", "deviceType": "Switch", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Cisco", "lastSeen": 1759000000000 },
+      { "id": "hmi-01",      "label": "HMI-Operator-01", "ip": "10.10.5.10", "deviceType": "SCADA", "importance": "Alta", "isCritical": false, "isAuthorized": true, "vendor": "Wonderware", "lastSeen": 1759000000000 },
+      { "id": "hmi-02",      "label": "HMI-Operator-02", "ip": "10.10.5.11", "deviceType": "SCADA", "importance": "Media", "isCritical": false, "isAuthorized": true, "vendor": "Wonderware", "lastSeen": 1759000000000 },
+      { "id": "plc-p1",      "label": "PLC-P1", "ip": "10.10.10.11", "deviceType": "PLC", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Allen-Bradley", "lastSeen": 1759000000000 },
+      { "id": "plc-p2",      "label": "PLC-P2", "ip": "10.10.20.12", "deviceType": "PLC", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Schneider",     "lastSeen": 1759000000000 },
+      { "id": "plc-p3",      "label": "PLC-P3", "ip": "10.10.30.13", "deviceType": "PLC", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Allen-Bradley", "lastSeen": 1759000000000 },
+      { "id": "plc-p4",      "label": "PLC-P4", "ip": "10.10.40.14", "deviceType": "PLC", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Schneider",     "lastSeen": 1759000000000 },
+      { "id": "plc-p5",      "label": "PLC-P5", "ip": "10.10.50.15", "deviceType": "PLC", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Allen-Bradley", "lastSeen": 1759000000000 },
+      { "id": "plc-p6",      "label": "PLC-P6", "ip": "10.10.60.16", "deviceType": "PLC", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Schneider",     "lastSeen": 1759000000000 },
+      { "id": "snort",       "label": "Snort-Sensor", "ip": "10.10.5.200", "deviceType": "Switch", "importance": "Alta", "isCritical": true, "isAuthorized": true, "vendor": "Cisco", "lastSeen": 1759000000000 },
+      { "id": "eng-laptop",  "label": "Engineering-Laptop", "ip": "10.10.5.50", "deviceType": "PC", "importance": "Media", "isCritical": false, "isAuthorized": true, "vendor": "Lenovo", "lastSeen": 1759000000000 },
+      { "id": "unknown",     "label": "Unknown-Laptop", "ip": "10.10.5.99", "deviceType": "PC", "importance": "Baja", "isCritical": false, "isAuthorized": false, "vendor": null, "lastSeen": 1759000000000 }
+    ],
+    "edges": [
+      { "source": "router-edge", "target": "core-switch", "alertCount": 0, "lastAlertType": "", "protocols": ["IP"] },
+      { "source": "core-switch", "target": "hmi-01",      "alertCount": 0, "lastAlertType": "", "protocols": ["IP","Modbus/TCP"] },
+      { "source": "core-switch", "target": "hmi-02",      "alertCount": 0, "lastAlertType": "", "protocols": ["IP","Modbus/TCP"] },
+      { "source": "hmi-01",      "target": "plc-p1",      "alertCount": 0, "lastAlertType": "", "protocols": ["Modbus/TCP"] },
+      { "source": "hmi-01",      "target": "plc-p2",      "alertCount": 0, "lastAlertType": "", "protocols": ["Modbus/TCP"] },
+      { "source": "hmi-01",      "target": "plc-p3",      "alertCount": 0, "lastAlertType": "", "protocols": ["Modbus/TCP"] },
+      { "source": "hmi-02",      "target": "plc-p4",      "alertCount": 0, "lastAlertType": "", "protocols": ["Modbus/TCP"] },
+      { "source": "hmi-02",      "target": "plc-p5",      "alertCount": 0, "lastAlertType": "", "protocols": ["Modbus/TCP"] },
+      { "source": "hmi-02",      "target": "plc-p6",      "alertCount": 0, "lastAlertType": "", "protocols": ["Modbus/TCP"] },
+      { "source": "core-switch", "target": "snort",       "alertCount": 0, "lastAlertType": "", "protocols": ["SPAN"] },
+      { "source": "core-switch", "target": "eng-laptop",  "alertCount": 0, "lastAlertType": "", "protocols": ["IP","SSH"] },
+      { "source": "core-switch", "target": "unknown",     "alertCount": 2, "lastAlertType": "Aviso", "protocols": ["IP"] }
+    ],
+    "stats": { "totalDevices": 13, "authorized": 11, "unauthorized": 2, "critical": 8 }
+  },
+  "whitelist": {
+    "entries": [
+      { "id": 1, "entryType": "mac", "pattern": "00:1B:44:11:3A:*", "description": "Plant PLCs (Allen-Bradley + Schneider)", "isActive": true,  "autoAuthorize": true,  "autoCritical": true,  "autoImportance": "Alta",  "createdAt": null, "updatedAt": null },
+      { "id": 2, "entryType": "mac", "pattern": "00:25:90:6A:7E:*", "description": "HMI operator stations",                "isActive": true,  "autoAuthorize": true,  "autoCritical": false, "autoImportance": "Alta",  "createdAt": null, "updatedAt": null },
+      { "id": 3, "entryType": "mac", "pattern": "F0:18:98:1B:22:01", "description": "Engineering laptop",                  "isActive": true,  "autoAuthorize": true,  "autoCritical": false, "autoImportance": "Media", "createdAt": null, "updatedAt": null },
+      { "id": 4, "entryType": "mac", "pattern": "B8:27:EB:99:11:22", "description": "Snort sensor (RPi)",                  "isActive": true,  "autoAuthorize": true,  "autoCritical": true,  "autoImportance": "Alta",  "createdAt": null, "updatedAt": null },
+      { "id": 5, "entryType": "mac", "pattern": "00:E0:4C:68:11:*",  "description": "Core switch + edge router",           "isActive": true,  "autoAuthorize": true,  "autoCritical": true,  "autoImportance": "Alta",  "createdAt": null, "updatedAt": null },
+      { "id": 6, "entryType": "ip",  "pattern": "10.10.0.0/16",      "description": "Plant production VLAN",               "isActive": true,  "autoAuthorize": true,  "autoCritical": false, "autoImportance": "Media", "createdAt": null, "updatedAt": null },
+      { "id": 7, "entryType": "ip",  "pattern": "10.10.99.0/24",     "description": "Guest VLAN (untrusted)",              "isActive": false, "autoAuthorize": false, "autoCritical": false, "autoImportance": "Baja",  "createdAt": null, "updatedAt": null }
+    ]
+  },
+  "snortRules": [
+    { "id": 1,  "sid": 1000001, "name": "ICMP Echo Reply",            "category": "icmp",      "isEnabled": true,  "isPassRule": false, "priority": 3, "description": "Detect ICMP echo replies on unauthorized hosts",                              "ruleText": "alert icmp any any -> $HOME_NET any (msg:\"ICMP Echo Reply\"; itype:0; sid:1000001;)", "createdAt": null, "updatedAt": null },
+    { "id": 2,  "sid": 1000010, "name": "Modbus Write Single Coil",    "category": "modbus",    "isEnabled": true,  "isPassRule": false, "priority": 1, "description": "Modbus function 5 (write coil) from non-HMI source",                          "ruleText": "alert tcp !$HMI_NET any -> $PLC_NET 502 (msg:\"Modbus Write Coil\"; flow:to_server; content:\"|05|\"; offset:7; depth:1; sid:1000010;)", "createdAt": null, "updatedAt": null },
+    { "id": 3,  "sid": 1000011, "name": "Modbus Force Multiple Coils", "category": "modbus",    "isEnabled": true,  "isPassRule": false, "priority": 1, "description": "Modbus function 15 (force multiple coils)",                                  "ruleText": "alert tcp any any -> $PLC_NET 502 (msg:\"Modbus Force Multiple Coils\"; flow:to_server; content:\"|0f|\"; offset:7; depth:1; sid:1000011;)", "createdAt": null, "updatedAt": null },
+    { "id": 4,  "sid": 1000020, "name": "DNP3 from non-master",        "category": "dnp3",      "isEnabled": false, "isPassRule": false, "priority": 2, "description": "DNP3 traffic from a non-master IP",                                          "ruleText": "alert tcp !$MASTER_NET any -> any 20000 (msg:\"DNP3 from non-master\"; sid:1000020;)", "createdAt": null, "updatedAt": null },
+    { "id": 5,  "sid": 1000030, "name": "FTP brute force",              "category": "auth",      "isEnabled": false, "isPassRule": false, "priority": 2, "description": "Repeated FTP login failures",                                                "ruleText": "alert tcp any any -> any 21 (msg:\"FTP brute force\"; content:\"530 Login\"; sid:1000030;)", "createdAt": null, "updatedAt": null },
+    { "id": 6,  "sid": 1000040, "name": "Modbus port scan",             "category": "modbus",    "isEnabled": true,  "isPassRule": false, "priority": 1, "description": "Sweeping the 502/TCP port across the plant VLAN",                            "ruleText": "alert tcp any any -> $PLC_NET 502 (msg:\"Modbus port scan\"; threshold:type both, track by_src, count 10, seconds 60; sid:1000040;)", "createdAt": null, "updatedAt": null },
+    { "id": 7,  "sid": 1000050, "name": "SSH from outside VLAN",        "category": "auth",      "isEnabled": true,  "isPassRule": false, "priority": 2, "description": "SSH attempts from outside the plant VLAN",                                   "ruleText": "alert tcp !$HOME_NET any -> $HOME_NET 22 (msg:\"SSH from outside VLAN\"; sid:1000050;)", "createdAt": null, "updatedAt": null },
+    { "id": 8,  "sid": 1000060, "name": "Unauthorized HTTPS to PLC",    "category": "scan",      "isEnabled": false, "isPassRule": false, "priority": 3, "description": "HTTPS traffic to PLC web interface",                                         "ruleText": "alert tcp any any -> $PLC_NET 443 (msg:\"HTTPS to PLC\"; sid:1000060;)", "createdAt": null, "updatedAt": null },
+    { "id": 9,  "sid": 1000070, "name": "ARP spoofing",                 "category": "spoof",     "isEnabled": true,  "isPassRule": false, "priority": 1, "description": "Suspicious ARP reply patterns",                                              "ruleText": "alert arp any any -> any any (msg:\"ARP spoofing\"; sid:1000070;)", "createdAt": null, "updatedAt": null },
+    { "id": 10, "sid": 1000080, "name": "DNS exfiltration",             "category": "dns",       "isEnabled": false, "isPassRule": false, "priority": 2, "description": "Anomalously long DNS queries",                                               "ruleText": "alert udp any any -> any 53 (msg:\"DNS exfiltration\"; dsize:>200; sid:1000080;)", "createdAt": null, "updatedAt": null }
+  ],
+  "snortRulesStats": { "total": 10, "enabled": 6, "disabled": 4 },
+  "snortTemplates": [
+    { "name": "Modbus write to PLC",  "category": "modbus", "template": "alert tcp !$HMI_NET any -> $PLC_NET 502 (msg:\"{{msg}}\"; flow:to_server; sid:{{sid}};)" },
+    { "name": "Unauthorized SSH",     "category": "auth",   "template": "alert tcp !$HOME_NET any -> $HOME_NET 22 (msg:\"{{msg}}\"; sid:{{sid}};)" },
+    { "name": "ICMP from guest VLAN", "category": "icmp",   "template": "alert icmp $GUEST_NET any -> any any (msg:\"{{msg}}\"; itype:8; sid:{{sid}};)" },
+    { "name": "DNP3 from non-master", "category": "dnp3",   "template": "alert tcp !$MASTER_NET any -> any 20000 (msg:\"{{msg}}\"; sid:{{sid}};)" }
+  ],
+  "seedAlerts": [
+    { "id": 9001, "alertType": "Alerta", "name": "Modbus Write Single Coil", "macOrigin": "AC:DE:48:00:11:22", "macDestination": "00:1B:44:11:3A:03", "ipOrigin": "10.10.5.99", "ipDestination": "10.10.30.13", "date": "2026-06-10T08:02:12.000Z", "timestamp": 1781193732000, "acknowledged": false, "acknowledgedAt": null },
+    { "id": 9002, "alertType": "Aviso",  "name": "Unknown device joined",     "macOrigin": "AC:DE:48:00:11:22", "macDestination": "FF:FF:FF:FF:FF:FF", "ipOrigin": "10.10.5.99", "ipDestination": "255.255.255.255", "date": "2026-06-10T07:55:01.000Z", "timestamp": 1781193301000, "acknowledged": false, "acknowledgedAt": null },
+    { "id": 9003, "alertType": "Aviso",  "name": "ICMP Echo Reply",           "macOrigin": "5C:F9:38:00:11:22", "macDestination": "B8:27:EB:99:11:22", "ipOrigin": "10.10.99.1",  "ipDestination": "10.10.5.200", "date": "2026-06-10T07:48:45.000Z", "timestamp": 1781192925000, "acknowledged": true,  "acknowledgedAt": "2026-06-10T07:50:00.000Z" }
+  ]
+}

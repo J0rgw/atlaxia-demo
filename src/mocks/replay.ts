@@ -214,6 +214,12 @@ class ReplayEngine {
     this.prev = null;
     this.latest = null;
     this.latestInferences = {};
+    this.networkAlerts = [];
+  }
+
+  seedNetworkAlerts(alerts: DemoNetworkAlert[]) {
+    this.networkAlerts = [...alerts].sort((a, b) => b.timestamp - a.timestamp);
+    this.nextAlertId = Math.max(this.nextAlertId, ...alerts.map((a) => a.id + 1));
   }
 
   subscribe(listener: Listener): () => void {
