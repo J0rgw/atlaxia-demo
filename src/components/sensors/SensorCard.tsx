@@ -10,13 +10,11 @@
  * - Value change highlight
  */
 
-import { useMemo, useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { getFreshnessInfo } from '@/lib/timeUtils';
 import type {
   IndustrialSensor,
   SensorEvaluation,
-  AlarmLevel,
 } from '@/types/industrial';
 
 interface SensorCardProps {
@@ -72,130 +70,6 @@ const STATUS_CONFIG = {
     accentBorder: 'border-l-4 border-l-[var(--status-critical)]',
   },
 };
-
-const ALARM_LEVEL_LABELS: Record<AlarmLevel, string> = {
-  HH: 'MUY ALTO',
-  H: 'ALTO',
-  L: 'BAJO',
-  LL: 'MUY BAJO',
-};
-
-function Sparkline({ data, className }: { data: number[]; className?: string }) {
-  if (!data || data.length < 2) return null;
-
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-
-  const width = 60;
-  const height = 20;
-  const padding = 2;
-
-  const points = data.map((value, index) => {
-    const x = padding + (index / (data.length - 1)) * (width - 2 * padding);
-    const y = height - padding - ((value - min) / range) * (height - 2 * padding);
-    return `${x},${y}`;
-  });
-
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} className={cn('h-5 w-16', className)}>
-      <polyline
-        points={points.join(' ')}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function TrendIndicator({
-  trend,
-  percent,
-}: {
-  trend: 'up' | 'down' | 'stable';
-  percent?: number;
-}) {
-  const arrows = {
-    up: (
-      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-    down: (
-      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-    stable: (
-      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-  };
-
-  const colors = {
-    up: 'text-[var(--status-normal)]',
-    down: 'text-[var(--status-critical)]',
-    stable: 'text-[var(--text-secondary)]',
-  };
-
-  return (
-    <span className={cn('inline-flex items-center gap-0.5 text-xs', colors[trend])}>
-      {arrows[trend]}
-      {percent !== undefined && (
-        <span>{percent > 0 ? '+' : ''}{percent.toFixed(1)}%</span>
-      )}
-    </span>
-  );
-}
-
-function ProgressBar({
-  value,
-  min,
-  max,
-  status,
-}: {
-  value: number;
-  min: number;
-  max: number;
-  status: 'normal' | 'warning' | 'critical';
-}) {
-  const range = max - min || 1;
-  let percent = ((value - min) / range) * 100;
-  percent = Math.max(0, Math.min(100, percent));
-
-  const config = STATUS_CONFIG[status];
-
-  return (
-    <div className="relative h-2 bg-[var(--bg-inset)] rounded-full overflow-hidden">
-      <div
-        className={cn('h-full rounded-full transition-all duration-300', config.progressBg)}
-        style={{ width: `${percent}%` }}
-      />
-      {/* Marker lines at 25%, 50%, 75% */}
-      <div className="absolute inset-0 flex">
-        <div className="w-1/4 border-r border-white/20" />
-        <div className="w-1/4 border-r border-white/30" />
-        <div className="w-1/4 border-r border-white/20" />
-      </div>
-    </div>
-  );
-}
 
 function AnimatedValue({
   value,
@@ -267,54 +141,13 @@ function AnimatedValue({
   );
 }
 
-function LiveIndicator({ isLive }: { isLive: boolean }) {
-  if (!isLive) return null;
-
-  return (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[var(--status-normal-muted)] rounded text-[10px] font-semibold text-[var(--status-normal)]">
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--status-normal)] opacity-75" />
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--status-normal)]" />
-      </span>
-      LIVE
-    </span>
-  );
-}
-
-function FreshnessBadge({ timestamp }: { timestamp?: number }) {
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!timestamp) return null;
-
-  const { text, color } = getFreshnessInfo(timestamp);
-
-  return (
-    <span className={cn('px-1.5 py-0.5 rounded text-[10px] font-medium', color)}>
-      {text}
-    </span>
-  );
-}
-
 export function SensorCard({
   sensor,
   evaluation,
   value: propValue,
-  timestamp,
-  trend = 'stable',
-  trendPercent,
-  aiConfidence,
-  sparklineData,
   isFavorite = false,
-  isLive = false,
   onCardClick,
   onFavoriteToggle,
-  onInfoClick,
-  onChartClick,
   className,
 }: SensorCardProps) {
   const hasData = propValue != null || evaluation?.value != null;
@@ -333,13 +166,6 @@ export function SensorCard({
       return () => clearTimeout(timer);
     }
   }, [value]);
-
-  const rangeText = useMemo(() => {
-    const { min, max } = sensor.operatingLimits.normal;
-    return `${min}-${max}`;
-  }, [sensor.operatingLimits.normal]);
-
-  const alarmLevel = evaluation?.alarm?.level;
 
   return (
     <div

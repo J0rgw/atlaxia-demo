@@ -85,18 +85,6 @@ function TimeRangeSelector({
   );
 }
 
-function LiveIndicator() {
-  return (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-[var(--status-normal-muted)] rounded text-[10px] font-semibold text-[var(--status-normal)]">
-      <span className="relative flex h-1.5 w-1.5">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--status-normal)] opacity-75" />
-        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--status-normal)]" />
-      </span>
-      LIVE
-    </span>
-  );
-}
-
 function ExportButton({
   data,
   sensorName,
@@ -178,7 +166,6 @@ export function AreaBandChart({
   normalRange,
   warningRange,
   aiMetadata,
-  isLive,
   initialRange = '5m',
 }: AreaBandChartProps) {
   const { t } = useTranslation();
@@ -305,7 +292,6 @@ export function AreaBandChart({
   const effectiveNormalRange = aiMetadata?.normal_range || normalRange;
   const effectiveWarningRange = aiMetadata?.warning_range || warningRange;
   const currentValue = filteredData.length > 0 ? filteredData[filteredData.length - 1].value : 0;
-  const showLive = isLive ?? mode === 'realtime';
 
   // Inference markers (B15.4):
   //  - Per-sensor in-session events come from the WS ring buffer in
