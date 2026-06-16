@@ -266,3 +266,6 @@ export * from './industrial';
 
 // Re-export inference contract types (BFF v2.1)
 export * from './inference';
+
+// Re-export anomaly event register types
+export * from './anomalyEvents';

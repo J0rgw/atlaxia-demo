@@ -1,5 +1,5 @@
 import * as echarts from 'echarts/core';
-import { BarChart, LineChart, RadarChart, PieChart, ScatterChart } from 'echarts/charts';
+import { BarChart, CustomChart, LineChart, RadarChart, PieChart, ScatterChart } from 'echarts/charts';
 import {
   GridComponent,
   TooltipComponent,
@@ -15,6 +15,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 // Register only the chart types and components we use (tree-shaking)
 echarts.use([
   BarChart,
+  CustomChart,
   LineChart,
   RadarChart,
   PieChart,

@@ -7,6 +7,7 @@ export { Switch } from './Switch';
 export { Checkbox } from './Checkbox';
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './Tooltip';
 export { ErrorBoundary } from './ErrorBoundary';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 export { ConnectionStatus, ConnectionStatusBadge } from './ConnectionStatus';
 export { ColorPicker } from './ColorPicker';
 export { LogoUpload } from './LogoUpload';

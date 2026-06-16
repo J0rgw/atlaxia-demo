@@ -4,6 +4,7 @@
  */
 
 import type { AlarmPriority } from '@/types/industrial';
+import type { ReviewStatus } from '@/types/anomalyEvents';
 
 /** Network alert type badge styles (AlertsTable) */
 export const ALERT_TYPE_STYLES: Record<string, string> = {
@@ -60,4 +61,43 @@ export const IMPORTANCE_STYLES: Record<string, string> = {
   Alta: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]',
   Media: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]',
   Baja: 'bg-[var(--bg-inset)] text-[var(--text-secondary)]',
+};
+
+/**
+ * Criticality level 0-5 → badge styles + nombre (registro de anomaly events).
+ * Mismo mapeo semántico que LEVEL_COLOR de AnomaliesTable (NORMAL/INFO →
+ * normal, LOW → advisory, MEDIUM → warning, HIGH → critical, CRITICAL →
+ * emergency).
+ */
+export const PLANT_LEVEL_CONFIG: Record<number, { name: string; badge: string }> = {
+  0: { name: 'NORMAL', badge: 'bg-[var(--status-normal-muted)] text-[var(--status-normal)]' },
+  1: { name: 'INFO', badge: 'bg-[var(--status-normal-muted)] text-[var(--status-normal)]' },
+  2: { name: 'LOW', badge: 'bg-[var(--status-advisory-muted)] text-[var(--status-advisory)]' },
+  3: { name: 'MEDIUM', badge: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]' },
+  4: { name: 'HIGH', badge: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]' },
+  5: { name: 'CRITICAL', badge: 'bg-[var(--status-emergency-muted)] text-[var(--status-emergency)]' },
+};
+
+/** Criticidad FluvIA (crit/high/mid/low) → clases del badge de los resúmenes. */
+export const FLUVIA_CRIT_BADGE: Record<'crit' | 'high' | 'mid' | 'low', string> = {
+  crit: 'bg-[var(--status-emergency-muted)] text-[var(--status-emergency)] border-[var(--status-emergency)]/40',
+  high: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)] border-[var(--status-critical)]/40',
+  mid: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)] border-[var(--status-warning)]/40',
+  low: 'bg-[var(--bg-inset)] text-[var(--text-secondary)] border-[var(--border-default)]',
+};
+
+/** review_status (eje humano del registro de eventos) → badge + etiqueta. */
+export const REVIEW_STATUS_CONFIG: Record<ReviewStatus, { label: string; badge: string }> = {
+  pending_review: {
+    label: 'Pendiente',
+    badge: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]',
+  },
+  confirmed_real: {
+    label: 'Confirmada real',
+    badge: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]',
+  },
+  dismissed_fp: {
+    label: 'Falso positivo',
+    badge: 'bg-[var(--bg-inset)] text-[var(--text-secondary)]',
+  },
 };
