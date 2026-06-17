@@ -78,6 +78,25 @@ export const translations = {
     noticeCount: 'aviso(s)',
     max: 'max',
 
+    // Calendar day detail modal
+    dayDetail: 'Detalle de la jornada',
+    dayDetailView: 'Vista del detalle de la jornada',
+    daySummaryTab: 'Resumen del día',
+    dayNetworkTab: 'Red',
+    fluviaDayContext: '· Resumen de la jornada',
+    dayEventsHeading: 'Eventos del día',
+    dayEventOne: 'evento en la jornada',
+    dayEventMany: 'eventos en la jornada',
+    reportPdf: 'Informe PDF',
+    reportGenerating: 'Generando…',
+    reportPdfTitle: 'Descarga el informe de la jornada en PDF',
+    reportPdfDisabledTitle: 'Sin episodios de anomalía en esta jornada',
+    reportError: 'No se pudo generar el informe.',
+    noEpisodesDay: 'Sin episodios de anomalía este día.',
+    noNetworkAlertsDay: 'Sin alertas de red en esta jornada.',
+    viewAllInNetwork: 'Ver todas en Red',
+    closeLabel: 'Cerrar',
+
     // KPIs
     overallEfficiency: 'Eficiencia General del Sistema',
     activeUnits: 'Unidades Activas / Salida Total',
@@ -472,6 +491,25 @@ export const translations = {
     alertCount: 'alert(s)',
     noticeCount: 'notice(s)',
     max: 'max',
+
+    // Calendar day detail modal
+    dayDetail: 'Day detail',
+    dayDetailView: 'Day detail view',
+    daySummaryTab: 'Day summary',
+    dayNetworkTab: 'Network',
+    fluviaDayContext: '· Day summary',
+    dayEventsHeading: 'Day events',
+    dayEventOne: 'event in the day',
+    dayEventMany: 'events in the day',
+    reportPdf: 'PDF report',
+    reportGenerating: 'Generating…',
+    reportPdfTitle: 'Download the day report as PDF',
+    reportPdfDisabledTitle: 'No anomaly episodes this day',
+    reportError: 'Could not generate the report.',
+    noEpisodesDay: 'No anomaly episodes this day.',
+    noNetworkAlertsDay: 'No network alerts this day.',
+    viewAllInNetwork: 'View all in Network',
+    closeLabel: 'Close',
 
     // KPIs
     overallEfficiency: 'Overall System Efficiency',

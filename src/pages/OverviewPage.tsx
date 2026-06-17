@@ -15,7 +15,7 @@ import {
 } from '@dnd-kit/sortable';
 import {
   KPICard,
-  CalendarGrid,
+  CalendarWithDetail,
   EventLog,
   LiveIndicator,
   ProcessCriticalityGauge,
@@ -299,10 +299,9 @@ export function OverviewPage() {
             </CardContent>
           </Card>
         ) : (
-          <CalendarGrid
+          <CalendarWithDetail
             anomalies={calendarAnomalies}
             alerts={calendarAlerts}
-            onDayClick={() => {}}
           />
         );
 

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { FluviaChat } from '../chat';
@@ -11,6 +12,10 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const collapsed = useSidebarStore((s) => s.collapsed);
+  const { pathname } = useLocation();
+  // En anomalías el copiloto FluvIA vive como rail contextual; ocultamos el
+  // chat flotante para no duplicar el asistente.
+  const hideFloatingChat = pathname.startsWith('/anomalies');
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)] transition-colors">
@@ -19,7 +24,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <Header />
         <main className="p-4">{children}</main>
       </div>
-      <FluviaChat />
+      {!hideFloatingChat && <FluviaChat />}
     </div>
   );
 }

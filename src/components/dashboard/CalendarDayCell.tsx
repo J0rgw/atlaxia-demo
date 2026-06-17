@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { getBackgroundClass } from '@/lib/calendarUtils';
+import { getBackgroundClass, getDateKey } from '@/lib/calendarUtils';
 import {
   Tooltip,
   TooltipTrigger,
@@ -68,7 +68,11 @@ export function CalendarDayCell({ day, onClick }: CalendarDayCellProps) {
   ) : null;
 
   const cell = (
-    <button className={cellClasses} onClick={onClick}>
+    <button
+      className={cellClasses}
+      onClick={onClick}
+      data-cal-cell={getDateKey(day.date)}
+    >
       {day.dayOfMonth}
       {/* Mini event dots */}
       {hasEvents && (

@@ -106,6 +106,30 @@ describe('fetchAnomalyEvents', () => {
     const pending = await fetchAnomalyEvents({ ...WEEK, review_status: 'pending_review' });
     expect(pending.events.every((e) => e.review_status === 'pending_review')).toBe(true);
   });
+
+  it('combina los ejes sistema + humano con semántica AND', async () => {
+    const both = await fetchAnomalyEvents({
+      ...WEEK,
+      posible: 'candidate',
+      review_status: 'pending_review',
+    });
+    expect(both.events.length).toBeGreaterThan(0);
+    expect(both.events.every((e) => e.posible && e.review_status === 'pending_review')).toBe(true);
+    // la intersección nunca devuelve más que cada eje por separado
+    const onlyCandidate = await fetchAnomalyEvents({ ...WEEK, posible: 'candidate' });
+    const onlyPending = await fetchAnomalyEvents({ ...WEEK, review_status: 'pending_review' });
+    expect(both.total).toBeLessThanOrEqual(onlyCandidate.total);
+    expect(both.total).toBeLessThanOrEqual(onlyPending.total);
+  });
+
+  it('«Todas» en ambos ejes limpia el filtro y restaura el total del rango', async () => {
+    const base = await fetchAnomalyEvents(WEEK);
+    const filtered = await fetchAnomalyEvents({ ...WEEK, posible: 'confirmed' });
+    expect(filtered.total).toBeLessThan(base.total);
+    // volver a 'all'/'all' devuelve exactamente el conteo base (el filtro se limpia)
+    const cleared = await fetchAnomalyEvents({ ...WEEK, posible: 'all', review_status: 'all' });
+    expect(cleared.total).toBe(base.total);
+  });
 });
 
 describe('patchAnomalyEventReview', () => {

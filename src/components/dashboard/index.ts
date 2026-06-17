@@ -2,6 +2,7 @@ export { KPICard } from './KPICard';
 export { LiveIndicator } from './LiveIndicator';
 export { ComboChart } from './ComboChart';
 export { CalendarGrid } from './CalendarGrid';
+export { CalendarWithDetail } from './CalendarWithDetail';
 export { CalendarHeader } from './CalendarHeader';
 export { CalendarDayCell } from './CalendarDayCell';
 export { CalendarLegend } from './CalendarLegend';

@@ -13,7 +13,7 @@ export function FluviaProse({ text, className }: { text: string; className?: str
 }
 
 interface FluviaBoxProps {
-  /** Etiqueta junto al nombre (p. ej. "· Resumen de franja"). */
+  /** Etiqueta junto al nombre (p. ej. "· Resumen del periodo"). */
   context: string;
   children: React.ReactNode;
   className?: string;

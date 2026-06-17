@@ -151,7 +151,7 @@ export function EventsTimeline({
 
         {!isLoading && (events?.length ?? 0) === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-xs text-[var(--text-muted)]">
-            Sin episodios en la franja seleccionada.
+            Sin episodios en el periodo seleccionado.
           </div>
         )}
       </div>
