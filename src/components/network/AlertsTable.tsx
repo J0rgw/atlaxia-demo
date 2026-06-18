@@ -1,26 +1,14 @@
-import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { useTranslation } from '@/stores/languageStore';
-import { ALERT_TYPE_STYLES } from '@/lib/statusStyles';
 import type { NetworkAlert } from '@/types';
 
 interface AlertsTableProps {
   alerts: NetworkAlert[];
 }
 
-const alertTypeStyles = ALERT_TYPE_STYLES;
-
 export function AlertsTable({ alerts }: AlertsTableProps) {
   const { t } = useTranslation();
-
-  const getAlertTypeLabel = (type: NetworkAlert['type']) => {
-    switch (type) {
-      case 'Alerta': return t('alert');
-      case 'Emergencia': return t('emergency');
-      case 'Aviso': return t('notice');
-      default: return type;
-    }
-  };
 
   return (
     <Card padding="none">
@@ -59,14 +47,7 @@ export function AlertsTable({ alerts }: AlertsTableProps) {
               {alerts.map((alert) => (
                 <tr key={alert.id} className="hover:bg-[var(--bg-inset)] transition-colors">
                   <td className="px-2 py-2">
-                    <span
-                      className={cn(
-                        'inline-flex px-1.5 py-0.5 text-xs font-medium rounded whitespace-nowrap',
-                        alertTypeStyles[alert.type]
-                      )}
-                    >
-                      {getAlertTypeLabel(alert.type)}
-                    </span>
+                    <Badge axis="alert" value={alert.type === 'Emergencia' ? 'emergencia' : alert.type === 'Alerta' ? 'alerta' : 'aviso'} />
                   </td>
                   <td className="px-2 py-2 text-xs font-medium text-[var(--text-primary)] max-w-[120px] truncate">
                     {alert.name}

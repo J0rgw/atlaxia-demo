@@ -118,7 +118,6 @@ interface DashboardState {
 
 export const DEFAULT_WIDGETS: WidgetLayout[] = [
   { id: 'kpi-strip', size: 'full' },
-  { id: 'radar', size: 'full' },
   { id: 'calendar', size: 'half' },
   { id: 'event-log', size: 'half' },
 ];

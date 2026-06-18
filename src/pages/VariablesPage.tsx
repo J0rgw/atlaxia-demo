@@ -152,6 +152,26 @@ export function VariablesPage() {
         console.error('Error fetching variable sensors:', err);
         setError(t('loadVariableSensorsError'));
         setLoading(false);
+        // Don't collapse to the terminal error on a transient fetch failure
+        // (e.g. MSW's service worker still waking after the tab returns). Keep
+        // whatever sensors we already have; if we have none, seed the list from
+        // config (values null) so the page renders and fills in on the next
+        // poll. See .demo-plan/0-bug-background-tab-freeze.md.
+        setSensors((prev) => {
+          if (prev.length > 0) return prev;
+          return getConfiguredTags().map((tag) => {
+            const mapping = getSensorMapping(tag);
+            return {
+              key: tag,
+              name: tag,
+              device_id: '',
+              device_name: '',
+              value: null,
+              timestamp: 0,
+              unit: mapping?.unit,
+            };
+          });
+        });
       }
     };
 

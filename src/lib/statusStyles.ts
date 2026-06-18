@@ -69,13 +69,30 @@ export const IMPORTANCE_STYLES: Record<string, string> = {
  * normal, LOW → advisory, MEDIUM → warning, HIGH → critical, CRITICAL →
  * emergency).
  */
-export const PLANT_LEVEL_CONFIG: Record<number, { name: string; badge: string }> = {
-  0: { name: 'NORMAL', badge: 'bg-[var(--status-normal-muted)] text-[var(--status-normal)]' },
-  1: { name: 'INFO', badge: 'bg-[var(--status-normal-muted)] text-[var(--status-normal)]' },
-  2: { name: 'LOW', badge: 'bg-[var(--status-advisory-muted)] text-[var(--status-advisory)]' },
-  3: { name: 'MEDIUM', badge: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]' },
-  4: { name: 'HIGH', badge: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]' },
-  5: { name: 'CRITICAL', badge: 'bg-[var(--status-emergency-muted)] text-[var(--status-emergency)]' },
+// Sin fondo: la severidad se lee como un readout en color (lenguaje SCADA), no
+// como una pastilla. `text` tiñe la etiqueta; `dot` colorea un punto de estado.
+/**
+ * Mapea un nivel de planta 0-5 al eje `criticality` del registro de badges.
+ * 0/1 → normal, 2 → low, 3 → medium, 4 → high, 5 → critical. Fuera de rango
+ * se clampa (≤1 → normal, ≥5 → critical).
+ */
+export function criticalityFromLevel(
+  level: number
+): 'critical' | 'high' | 'medium' | 'low' | 'normal' {
+  if (level >= 5) return 'critical';
+  if (level === 4) return 'high';
+  if (level === 3) return 'medium';
+  if (level === 2) return 'low';
+  return 'normal';
+}
+
+export const PLANT_LEVEL_CONFIG: Record<number, { name: string; text: string; dot: string }> = {
+  0: { name: 'NORMAL', text: 'text-[var(--status-normal)]', dot: 'bg-[var(--status-normal)]' },
+  1: { name: 'INFO', text: 'text-[var(--status-normal)]', dot: 'bg-[var(--status-normal)]' },
+  2: { name: 'LOW', text: 'text-[var(--status-advisory)]', dot: 'bg-[var(--status-advisory)]' },
+  3: { name: 'MEDIUM', text: 'text-[var(--status-warning)]', dot: 'bg-[var(--status-warning)]' },
+  4: { name: 'HIGH', text: 'text-[var(--status-critical)]', dot: 'bg-[var(--status-critical)]' },
+  5: { name: 'CRITICAL', text: 'text-[var(--status-emergency)]', dot: 'bg-[var(--status-emergency)]' },
 };
 
 /** Criticidad FluvIA (crit/high/mid/low) → clases del badge de los resúmenes. */
@@ -86,18 +103,22 @@ export const FLUVIA_CRIT_BADGE: Record<'crit' | 'high' | 'mid' | 'low', string> 
   low: 'bg-[var(--bg-inset)] text-[var(--text-secondary)] border-[var(--border-default)]',
 };
 
-/** review_status (eje humano del registro de eventos) → badge + etiqueta. */
-export const REVIEW_STATUS_CONFIG: Record<ReviewStatus, { label: string; badge: string }> = {
+// review_status (eje humano del registro): punto de color + etiqueta, sin
+// pastilla. «Pendiente» pide atención (ámbar), lo abordado se lee tranquilo.
+export const REVIEW_STATUS_CONFIG: Record<ReviewStatus, { label: string; text: string; dot: string }> = {
   pending_review: {
     label: 'Pendiente',
-    badge: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]',
+    text: 'text-[var(--text-primary)] font-medium',
+    dot: 'bg-[var(--status-warning)]',
   },
   confirmed_real: {
     label: 'Confirmada real',
-    badge: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]',
+    text: 'text-[var(--text-primary)]',
+    dot: 'bg-[var(--status-critical)]',
   },
   dismissed_fp: {
     label: 'Falso positivo',
-    badge: 'bg-[var(--bg-inset)] text-[var(--text-secondary)]',
+    text: 'text-[var(--text-muted)]',
+    dot: 'bg-[var(--border-emphasis)]',
   },
 };

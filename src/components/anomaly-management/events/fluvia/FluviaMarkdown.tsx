@@ -45,7 +45,7 @@ export function FluviaMarkdown({ markdown, onSelectRef, className }: FluviaMarkd
         </li>
       ),
       blockquote: ({ children }) => (
-        <blockquote className="my-2 rounded-sm border-l-[3px] border-l-[var(--accent-primary)] bg-[var(--status-advisory-muted)] px-3 py-2 text-xs leading-relaxed text-[var(--text-secondary)] [&_p]:mb-0 [&_strong]:font-semibold [&_strong]:text-[var(--text-primary)]">
+        <blockquote className="my-2 rounded-sm border border-[var(--accent-primary)]/20 bg-[var(--status-advisory-muted)] px-3 py-2 text-xs leading-relaxed text-[var(--text-secondary)] [&_p]:mb-0 [&_strong]:font-semibold [&_strong]:text-[var(--text-primary)]">
           {children}
         </blockquote>
       ),

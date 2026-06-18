@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { useTranslation } from '@/stores/languageStore';
-import { IMPORTANCE_STYLES } from '@/lib/statusStyles';
 import type { NetworkDevice } from '@/types';
 
 interface DevicesTableProps {
@@ -87,7 +87,7 @@ export function DevicesTable({ devices }: DevicesTableProps) {
                     {device.name}
                   </td>
                   <td className="px-3 py-3 text-sm text-[var(--text-secondary)]">
-                    {device.type}
+                    <Badge axis="device" value={device.type.toLowerCase() as 'plc' | 'scada' | 'pc' | 'switch' | 'router'} />
                   </td>
                   <td className="px-3 py-3 text-xs text-[var(--text-secondary)] font-readout">
                     {device.macAddress}
@@ -96,15 +96,7 @@ export function DevicesTable({ devices }: DevicesTableProps) {
                     {device.ipAddress}
                   </td>
                   <td className="px-3 py-3">
-                    <span
-                      className={cn(
-                        'inline-flex px-2 py-0.5 text-xs font-medium rounded-full whitespace-nowrap',
-                        IMPORTANCE_STYLES[device.importance] || IMPORTANCE_STYLES['Baja']
-                      )}
-                    >
-                      {device.importance === 'Alta' ? t('high') :
-                       device.importance === 'Media' ? t('medium') : t('low')}
-                    </span>
+                    <Badge axis="importance" value={device.importance === 'Alta' ? 'alta' : device.importance === 'Media' ? 'media' : 'baja'} />
                   </td>
                 </tr>
               ))}

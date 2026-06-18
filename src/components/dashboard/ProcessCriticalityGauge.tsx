@@ -1,5 +1,4 @@
 import { Card, CardContent } from '@/components/ui/Card';
-import { LiveIndicator } from './LiveIndicator';
 import { useProcessCriticality, PROCESS_IDS, type ProcessId, type ProcessCriticalityEntry } from '@/hooks/useProcessCriticality';
 import { getProcessById } from '@/config/sensors';
 import { levelToStatusToken, levelToStatusMutedToken, GAUGE_LEVELS, clampLevel } from '@/lib/inferenceLevel';
@@ -110,7 +109,6 @@ export function ProcessCriticalityGauge() {
         <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
           {t('processStatus')}
         </h3>
-        <LiveIndicator />
         {status === 'ready' && modelCount > 0 && (
           <span className="ml-auto text-[10px] text-[var(--text-muted)] font-readout">
             {modelCount} {modelCount === 1 ? 'modelo' : 'modelos'}

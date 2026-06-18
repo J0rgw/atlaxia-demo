@@ -1,28 +1,45 @@
 import { AlignLeft, ArrowRight } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { toneFor } from '@/lib/badges';
+import { sevValue } from '@/lib/xai/heat';
 import type { ExplainInfo } from '@/lib/xai/explain';
-import { UNKNOWN_PROC_COLOR } from '@/lib/xai/palette';
 import type { ConnMode } from '@/lib/xai/types';
 
 interface XaiReadoutProps {
   info: ExplainInfo;
   conn: ConnMode;
-  procColor: Record<string, string>;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.13em] mb-1.5">
+    <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.13em] mb-1.5">
       {children}
     </p>
   );
 }
 
-function ProcDot({ color }: { color: string }) {
+/**
+ * Lectura numérica del grado de anomalía del modelo (0–1), como chip coloreado
+ * por banda. Reusa tokens y geometría del sistema de badges (--badge-<tono>-*,
+ * --r-chip, --font-badge): el color saturado = banda de criticidad, coherente
+ * con el invariante. Contenido DINÁMICO (un número) → no es un badge de registro;
+ * la banda se deriva con toneFor('anomaly', sevValue(score)).
+ */
+function ScoreBadge({ score }: { score: number }) {
+  const tone = toneFor('anomaly', sevValue(score));
   return (
     <span
-      className="inline-block w-2 h-2 rounded-full shrink-0"
-      style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}` }}
-    />
+      title={`Grado de anomalía ${score.toFixed(2)} (0–1) · modelo IA`}
+      className="inline-flex h-[25px] shrink-0 items-center px-[10px] text-[11px] font-medium leading-none tracking-[0.03em] tabular-nums"
+      style={{
+        background: `var(--badge-${tone}-bg)`,
+        color: `var(--badge-${tone}-fg)`,
+        borderRadius: 'var(--r-chip)',
+        fontFamily: 'var(--font-badge)',
+      }}
+    >
+      {score.toFixed(2)}
+    </span>
   );
 }
 
@@ -49,7 +66,7 @@ function Flow({ s, t }: { s: string; t: string }) {
 
 function ActionBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[var(--status-advisory-muted)] border border-[var(--accent-primary)]/20 border-l-[3px] border-l-[var(--accent-primary)] rounded-sm px-2.5 py-2 text-xs text-[var(--text-primary)] leading-relaxed">
+    <div className="bg-[var(--status-advisory-muted)] border border-[var(--accent-primary)]/25 rounded-sm px-2.5 py-2 text-xs text-[var(--text-primary)] leading-relaxed">
       <SectionLabel>Acción</SectionLabel>
       {children}
     </div>
@@ -60,21 +77,24 @@ function ActionBox({ children }: { children: React.ReactNode }) {
  * Panel «Interpretación»: lectura estructurada del grafo. SIEMPRE describe la
  * lectura del MODELO (IA); cuando el lienzo muestra la red física se aclara.
  */
-export function XaiReadout({ info, conn, procColor }: XaiReadoutProps) {
+export function XaiReadout({ info, conn }: XaiReadoutProps) {
   return (
     <div className="absolute top-3 right-3 w-[280px] max-h-[calc(100%-24px)] overflow-auto scrollbar-thin bg-[var(--bg-surface)]/95 backdrop-blur border border-[var(--border-default)] rounded-md p-3 shadow-card">
       <div className="flex items-center gap-2 text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-[0.14em] mb-2.5">
         <AlignLeft className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
         Interpretación
+        <span className="font-normal text-[var(--accent-primary)]">· modelo IA</span>
       </div>
 
       {info.kind === 'empty' ? (
         <p className="text-xs text-[var(--text-secondary)]">{info.message}</p>
       ) : (
         <div className="space-y-3">
-          <span className="inline-block font-readout text-[9.5px] text-[var(--text-link)] bg-[var(--status-advisory-muted)] border border-[var(--accent-primary)]/30 rounded-full px-2.5 py-0.5 tracking-wide">
+          {/* caption del panel (frame vs resumen): es metadato, NO un estado →
+              leyenda muted, no una pill que finja ser badge del sistema. */}
+          <p className="font-readout text-[10px] uppercase tracking-[0.13em] text-[var(--text-muted)]">
             {info.badge}
-          </span>
+          </p>
 
           {conn !== 'ai' && (
             <p className="text-[11px] text-[var(--text-secondary)] leading-snug">
@@ -90,35 +110,28 @@ export function XaiReadout({ info, conn, procColor }: XaiReadoutProps) {
 
           {info.kind === 'frame' ? (
             <>
+              {/* enmarca el número: es el grado de anomalía estimado por el modelo */}
+              <p className="text-[11px] leading-snug text-[var(--text-secondary)]">
+                <b className="text-[var(--text-primary)]">Grado de anomalía</b> por sensor (0–1),
+                estimado por el modelo.
+              </p>
               <div>
                 <SectionLabel>Foco</SectionLabel>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-readout text-md font-semibold text-[var(--text-primary)]">
-                    {info.focus.id}
-                  </span>
-                  <span
-                    className="text-[9.5px] font-semibold px-2 py-0.5 rounded-full border"
-                    style={{
-                      color: info.focus.col,
-                      backgroundColor: `color-mix(in srgb, ${info.focus.col} 16%, transparent)`,
-                      borderColor: `color-mix(in srgb, ${info.focus.col} 38%, transparent)`,
-                    }}
-                  >
-                    {info.focus.sev}
-                  </span>
+                  {/* sensor en badge (tag) + score de anomalía (chip numérico
+                      coloreado por banda). */}
+                  <Badge tag={info.focus.id} />
+                  <ScoreBadge score={info.focus.score} />
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)] mt-1">
-                  <ProcDot color={procColor[info.focus.pk] ?? UNKNOWN_PROC_COLOR} />
-                  {info.focus.proc}
-                </div>
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">{info.focus.proc}</p>
               </div>
               <div>
-                <SectionLabel>Más anómalos</SectionLabel>
+                <SectionLabel>Valor de Anomalías</SectionLabel>
                 <div className="space-y-1.5">
                   {info.top.map((t) => (
-                    <div key={t.id} className="flex items-center gap-2 font-readout text-xs">
-                      <ProcDot color={procColor[t.pk] ?? UNKNOWN_PROC_COLOR} />
-                      <b className="min-w-[56px] font-semibold text-[var(--text-primary)]">{t.id}</b>
+                    <div key={t.id} className="flex items-center gap-2">
+                      <Badge tag={t.id} />
+                      <ScoreBadge score={t.sc} />
                       <Bar pct={Math.round(t.sc * 100)} />
                     </div>
                   ))}
@@ -140,31 +153,15 @@ export function XaiReadout({ info, conn, procColor }: XaiReadoutProps) {
             <>
               <div>
                 <SectionLabel>Procesos afectados</SectionLabel>
-                <div className="flex flex-wrap gap-1.5">
-                  {info.processes.map((p) => (
-                    <span
-                      key={p.pk}
-                      className="text-[10px] px-2 py-0.5 rounded-full border"
-                      style={{
-                        color: procColor[p.pk] ?? UNKNOWN_PROC_COLOR,
-                        backgroundColor: `color-mix(in srgb, ${procColor[p.pk] ?? UNKNOWN_PROC_COLOR} 15%, transparent)`,
-                        borderColor: `color-mix(in srgb, ${procColor[p.pk] ?? UNKNOWN_PROC_COLOR} 36%, transparent)`,
-                      }}
-                    >
-                      {p.name}
-                    </span>
-                  ))}
-                </div>
+                {/* texto plano (no badges): el badge se reserva para el sensor. */}
+                <p className="text-[11px] text-[var(--text-secondary)] leading-snug">
+                  {info.processes.map((p) => p.name).join(' · ')}
+                </p>
               </div>
               <div>
                 <SectionLabel>Sensor clave</SectionLabel>
-                <span className="font-readout text-md font-semibold text-[var(--text-primary)]">
-                  {info.key.id}
-                </span>
-                <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-secondary)] mt-1">
-                  <ProcDot color={procColor[info.key.pk] ?? UNKNOWN_PROC_COLOR} />
-                  {info.key.proc}
-                </div>
+                <Badge tag={info.key.id} />
+                <p className="mt-1 text-[11px] text-[var(--text-secondary)]">{info.key.proc}</p>
                 <div className="flex items-center gap-2 mt-1.5 font-readout text-[10.5px] text-[var(--text-secondary)]">
                   <Bar pct={info.key.pct} />
                   <span>
@@ -194,7 +191,7 @@ export function XaiReadout({ info, conn, procColor }: XaiReadoutProps) {
                 <div>
                   <SectionLabel>Aparte</SectionLabel>
                   <p className="text-[11px] text-[var(--text-secondary)] leading-snug">
-                    {info.aparte.join('; ')} — sin relación con el foco.
+                    {info.aparte.join('; ')}. Sin relación con el foco.
                   </p>
                 </div>
               )}

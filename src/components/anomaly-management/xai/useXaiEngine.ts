@@ -25,7 +25,10 @@ export function useXaiEngine(
   const engineRef = useRef<XaiEngine | null>(null);
   const onHoverRef = useRef(onHover);
   onHoverRef.current = onHover;
-  const { mode: themeMode } = useTheme();
+  // variant (scada/modern) entra como dependencia para que la paleta se relea al
+  // cambiar de plantilla: getEnginePalette resuelve tokens del tema activo y
+  // estos varían tanto por dark/light como por scada/modern (y por branding).
+  const { mode: themeMode, variant } = useTheme();
   const isDark = themeMode === 'dark';
 
   const inputRef = useRef<XaiEngineInput>({ mode, frame, ui, palette: getEnginePalette(isDark) });
@@ -45,5 +48,5 @@ export function useXaiEngine(
 
   useEffect(() => {
     engineRef.current?.update({ mode, frame, ui, palette: getEnginePalette(isDark) });
-  }, [mode, frame, ui, isDark]);
+  }, [mode, frame, ui, isDark, variant]);
 }

@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
-import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { rangeWindow } from '@/lib/anomalyEventsApi';
 import { buildRangeInsights } from '@/lib/anomalyEventsInsights';
-import { PLANT_LEVEL_CONFIG } from '@/lib/statusStyles';
+import { Badge } from '@/components/ui/Badge';
+import { criticalityFromLevel } from '@/lib/statusStyles';
 import type { AnomalyEvent, AnomalyEventFilters } from '@/types';
 import { fmtDuration } from './format';
 
@@ -14,124 +14,103 @@ interface BentoSummaryProps {
   filters: AnomalyEventFilters;
 }
 
-function Stat({
-  label,
+/**
+ * Celda métrica de la franja: cifra prominente arriba, etiqueta debajo y su
+ * matiz al pie. Patrón KPI estándar (valor → etiqueta → contexto), escaneable
+ * de un vistazo. `flex-1` reparte el ancho a partes iguales para que la franja
+ * se llene sin huecos.
+ */
+function MetricCell({
   value,
+  label,
   sub,
-  pulse,
+  tone,
 }: {
-  label: string;
   value: React.ReactNode;
+  label: string;
   sub?: string;
-  pulse?: boolean;
+  tone?: 'warning';
 }) {
   return (
-    <div className="px-4 py-2.5 min-w-0 flex-1">
-      <p className="text-[10px] font-medium text-[var(--text-secondary)] uppercase tracking-wider truncate">
-        {label}
-      </p>
-      <p className="font-readout text-xl font-bold text-[var(--text-primary)] leading-tight flex items-center gap-1.5">
-        {value}
-        {pulse && (
-          <span className="w-2 h-2 rounded-full bg-[var(--status-critical)] animate-pulse motion-reduce:animate-none" />
+    <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-4 py-2.5">
+      <span
+        className={cn(
+          'font-readout text-xl font-bold leading-none',
+          tone === 'warning' ? 'text-[var(--status-warning)]' : 'text-[var(--text-primary)]'
         )}
-      </p>
-      {sub && <p className="font-readout text-[10px] text-[var(--text-muted)] truncate">{sub}</p>}
+      >
+        {value}
+      </span>
+      <span className="truncate text-[11px] font-medium uppercase tracking-wide text-[var(--text-secondary)]">
+        {label}
+      </span>
+      {sub && (
+        <span className="truncate font-readout text-[10px] text-[var(--text-muted)]">{sub}</span>
+      )}
     </div>
   );
 }
 
 /**
- * KPIs del periodo (columna izquierda, fijos arriba de la tabla): una barra de
- * stats densa de lectura de un vistazo + el contexto de planta (procesos /
- * sensores top / actividad). El parte narrativo y el triage «dónde empezar»
- * viven en el copiloto FluvIA (rail derecho).
+ * Estado del periodo (columna izquierda, fijo sobre la tabla): una franja única
+ * que abre con el estado de planta (en curso ⇄ estable, lectura de un vistazo
+ * estilo ISA-101) y reparte a su derecha las cifras del periodo en celdas de
+ * igual peso, separadas por divisores, que llenan todo el ancho. El parte
+ * narrativo y el triage «dónde empezar» viven en el copiloto FluvIA (rail
+ * derecho).
  */
 export function BentoSummary({ events, isLoading, filters }: BentoSummaryProps) {
   const window_ = useMemo(() => rangeWindow(filters), [filters]);
   const insights = useMemo(() => buildRangeInsights(events ?? [], window_), [events, window_]);
 
   if (isLoading && events === undefined) {
+    return <Skeleton.Box className="h-[68px] shrink-0 rounded-lg" />;
+  }
+
+  if (insights.total === 0) {
     return (
-      <div className="space-y-3 shrink-0">
-        <Skeleton.Box className="h-[68px]" />
-        <Skeleton.Box className="h-[60px]" />
+      <div className="flex shrink-0 items-center gap-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--status-normal)]" />
+        <span>
+          Sin episodios en el periodo: la planta se mantuvo en{' '}
+          <b className="text-[var(--text-primary)]">régimen normal</b>.
+        </span>
       </div>
     );
   }
 
-  const level = PLANT_LEVEL_CONFIG[insights.maxLevel] ?? PLANT_LEVEL_CONFIG[0];
-  const sameDay =
-    insights.activityFrom !== null &&
-    insights.activityTo !== null &&
-    new Date(insights.activityFrom).toDateString() === new Date(insights.activityTo).toDateString();
-  const hourFmt = (ms: number) => format(new Date(ms), sameDay ? 'HH:mm' : 'dd/MM HH:mm');
-
   return (
-    <div className="space-y-3 shrink-0">
-      {/* barra de stats: una sola superficie, lectura de un vistazo */}
-      <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-md grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y sm:divide-y-0 divide-[var(--border-subtle)] overflow-hidden">
-        <Stat
-          label="Episodios"
-          value={insights.total}
-          sub={`${insights.confirmed} conf. · ${insights.candidates} cand.`}
-        />
-        <Stat
-          label="En curso"
-          value={insights.open}
-          pulse={insights.open > 0}
-          sub={insights.open > 0 ? `episodio #${insights.openEventId}` : 'sin episodio activo'}
-        />
-        <Stat label="Sin abordar" value={insights.pending} sub={`${insights.reviewedPct}% abordado`} />
-        <Stat
-          label="Tiempo en anomalía"
-          value={insights.anomalySeconds > 0 ? fmtDuration(insights.anomalySeconds) : '0 s'}
-          sub={`${(insights.anomalyFraction * 100).toFixed(2)}% del periodo`}
-        />
-        <Stat
-          label="Nivel pico"
-          value={
-            <span className={cn('inline-flex px-2 py-0.5 text-sm font-medium font-readout', level.badge)}>
-              {level.name}
-            </span>
-          }
-          sub={insights.maxLevelEventId !== null ? `episodio #${insights.maxLevelEventId}` : '·'}
-        />
-      </div>
+    <div className="flex shrink-0 items-stretch divide-x divide-[var(--border-subtle)] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+      <MetricCell
+        value={insights.total}
+        label="Episodios"
+        sub={`${insights.confirmed} conf · ${insights.candidates} cand`}
+      />
+      <MetricCell
+        value={insights.pending}
+        label="Sin abordar"
+        sub={`${insights.reviewedPct}% abordado`}
+        tone={insights.pending > 0 ? 'warning' : undefined}
+      />
+      <MetricCell
+        value={insights.anomalySeconds > 0 ? fmtDuration(insights.anomalySeconds) : '0 s'}
+        label="En anomalía"
+        sub={`${(insights.anomalyFraction * 100).toFixed(2)}% del periodo`}
+      />
 
-      {insights.total === 0 ? (
-        <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 text-xs text-[var(--text-secondary)]">
-          Sin episodios en el periodo seleccionado, la planta se mantuvo en{' '}
-          <b className="text-[var(--text-primary)]">régimen normal</b>.
-        </div>
-      ) : (
-        /* contexto de planta: procesos + sensores recurrentes + actividad */
-        <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 flex items-center gap-x-4 gap-y-2 flex-wrap">
-          {insights.processes.map((p) => (
-            <span
-              key={p.pk}
-              className="text-[10px] px-2 py-0.5 rounded-full border whitespace-nowrap"
-              style={{
-                color: p.color,
-                backgroundColor: `color-mix(in srgb, ${p.color} 15%, transparent)`,
-                borderColor: `color-mix(in srgb, ${p.color} 36%, transparent)`,
-              }}
-            >
-              {p.name}
-            </span>
-          ))}
-          {insights.topSensors.map((s) => (
-            <span key={s.sensor} className="font-readout text-[10px] text-[var(--text-secondary)]">
-              {s.sensor} <span className="text-[var(--text-muted)]">×{s.count}</span>
-            </span>
-          ))}
-          {insights.activityFrom !== null && insights.activityTo !== null && (
-            <span className="ml-auto font-readout text-[10px] text-[var(--text-muted)]">
-              actividad {hourFmt(insights.activityFrom)} → {hourFmt(insights.activityTo)}
+      {/* nivel pico: el indicador más fuerte cierra la franja, alineado con las celdas */}
+      <div className="flex shrink-0 flex-col justify-center gap-1.5 px-4 py-2.5">
+        <Badge axis="criticality" value={criticalityFromLevel(insights.maxLevel)} />
+        <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-secondary)]">
+          Nivel pico
+          {insights.maxLevelEventId !== null && (
+            <span className="font-readout normal-case text-[var(--text-muted)]">
+              {' '}
+              · #{insights.maxLevelEventId}
             </span>
           )}
-        </div>
-      )}
+        </span>
+      </div>
     </div>
   );
 }

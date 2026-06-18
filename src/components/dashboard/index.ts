@@ -1,5 +1,4 @@
 export { KPICard } from './KPICard';
-export { LiveIndicator } from './LiveIndicator';
 export { ComboChart } from './ComboChart';
 export { CalendarGrid } from './CalendarGrid';
 export { CalendarWithDetail } from './CalendarWithDetail';

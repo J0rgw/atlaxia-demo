@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Trash2, RefreshCw, Download, ChevronDown, Power } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { useTranslation } from '@/stores/languageStore';
 import {
   useSnortRules,
@@ -13,13 +14,6 @@ import {
   useSnortTemplates,
   type SnortRuleCreate,
 } from '@/hooks/useNetwork';
-
-const PRIORITY_STYLES: Record<number, string> = {
-  1: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]',
-  2: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]',
-  3: 'bg-[var(--status-advisory-muted)] text-[var(--status-advisory)]',
-  4: 'bg-[var(--bg-inset)] text-[var(--text-secondary)]',
-};
 
 const EMPTY_RULE: SnortRuleCreate = {
   sid: 0,
@@ -236,11 +230,9 @@ export function SnortRulesPanel() {
                         <span className="text-[10px] font-medium text-[var(--status-normal)]">PASS</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{rule.category || '-'}</td>
+                    <td className="px-3 py-2 text-xs text-[var(--text-secondary)]">{rule.category ? <Badge tag={rule.category} /> : '-'}</td>
                     <td className="px-3 py-2">
-                      <span className={cn('inline-flex w-6 h-5 items-center justify-center text-[10px] font-bold rounded', PRIORITY_STYLES[rule.priority] || PRIORITY_STYLES[3])}>
-                        {rule.priority}
-                      </span>
+                      <Badge axis="priority" value={('p' + rule.priority) as 'p1' | 'p2' | 'p3' | 'p4'} />
                     </td>
                     <td className="px-3 py-2">
                       <button

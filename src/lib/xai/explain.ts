@@ -8,7 +8,6 @@
  *   prescriptivas (decisión de seguridad, XAI-graph.md §10).
  */
 
-import { sev, sevColor } from './heat';
 import { aggregate, frameSubgraph } from './subgraph';
 import type { AggEdge, AggNode, XaiDataset, XaiMode, XaiSettings } from './types';
 
@@ -98,7 +97,9 @@ export interface ExplainEmpty {
 export interface ExplainFrame {
   kind: 'frame';
   badge: string;
-  focus: { id: string; proc: string; pk: string; sev: string; col: string };
+  /** score = grado de anomalía del modelo (0–1) en este frame; la UI lo muestra
+   *  como chip numérico coloreado por banda. */
+  focus: { id: string; proc: string; pk: string; score: number };
   top: { id: string; pk: string; sc: number }[];
   influence: { s: string; t: string } | null;
   action: string;
@@ -137,8 +138,7 @@ export function explainGraph(
         id: main,
         proc: ds.procName[ds.procOf[main]] ?? ds.procOf[main],
         pk: ds.procOf[main],
-        sev: sev(sc(main)),
-        col: sevColor(sc(main)),
+        score: sc(main),
       },
       top: ranked.slice(0, 3).map((id) => ({ id, pk: ds.procOf[id], sc: sc(id) })),
       influence: inf ? { s: inf.s, t: inf.t } : null,

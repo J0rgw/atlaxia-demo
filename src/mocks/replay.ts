@@ -167,6 +167,12 @@ class ReplayEngine {
   private latestInferences: Record<string, InferenceLike> = {};
   private modelNames = ['cognn-demo', 'stgnn-demo'];
   private initialized: Promise<void> | null = null;
+  // Handle for the 1 Hz tick so we can restart it after a background-tab
+  // throttle. Browsers clamp setInterval to ~1/min (or freeze it) in hidden
+  // tabs, which would otherwise stall the whole simulation. See
+  // .demo-plan/0-bug-background-tab-freeze.md.
+  private tickTimer: ReturnType<typeof setInterval> | null = null;
+  private visibilityBound = false;
   private attackManifest: AttackManifestEntry[] = [];
   private networkAlerts: DemoNetworkAlert[] = [];
   private networkAlertListeners = new Set<(alert: DemoNetworkAlert) => void>();
@@ -234,7 +240,8 @@ class ReplayEngine {
         this.bootTs = Date.now();
         // Tick immediately so subscribers see a snapshot before the first interval.
         this.tick();
-        setInterval(() => this.tick(), TICK_MS);
+        this.startTicker();
+        this.bindVisibility();
         const ms = (performance.now() - startedAt).toFixed(0);
         console.info(
           `[replay] init complete in ${ms}ms — ${this.rows.length} rows, ${Object.keys(this.mapping).length} mapped sensors, latest row has keys: ${Object.keys(this.latest ?? {}).slice(0, 4).join(', ')}…`,
@@ -245,6 +252,30 @@ class ReplayEngine {
       }
     })();
     return this.initialized;
+  }
+
+  /** (Re)start the 1 Hz ticker, clearing any previous handle first. */
+  private startTicker() {
+    if (this.tickTimer !== null) clearInterval(this.tickTimer);
+    this.tickTimer = setInterval(() => this.tick(), TICK_MS);
+  }
+
+  /**
+   * Background tabs throttle/freeze setInterval, so when the visitor comes
+   * back the simulation has been stalled and the WS bridge (which only emits
+   * inside subscribe(), i.e. per tick) has gone silent. On returning to a
+   * visible state we restart the ticker and tick once immediately so fresh
+   * data flows again within a frame instead of waiting for the browser to
+   * un-throttle the old interval. Idempotent — only bound once.
+   */
+  private bindVisibility() {
+    if (this.visibilityBound || typeof document === 'undefined') return;
+    this.visibilityBound = true;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || this.rows.length === 0) return;
+      this.startTicker();
+      this.tick();
+    });
   }
 
   reset() {
@@ -382,7 +413,11 @@ class ReplayEngine {
       const key = canonicalKey(rawKey);
       const series: Array<{ ts: number; value: string }> = [];
       for (let t = Math.floor(startTs / stride) * stride; t <= endTs; t += stride) {
-        const ago = Math.max(0, Math.floor((now - t) / TICK_MS));
+        // Clamp the delta to one loop span. After a background-tab stall `now`
+        // can jump far ahead of `t`, making `ago` wrap the cyclic buffer many
+        // times and land on incoherent rows. Capping at `span` keeps the
+        // window a single contiguous pass over the loop.
+        const ago = Math.min(span, Math.max(0, Math.floor((now - t) / TICK_MS)));
         const idx = ((this.cursor - ago) % span + span) % span;
         const row = this.rows[idx];
         const v = row?.[key];

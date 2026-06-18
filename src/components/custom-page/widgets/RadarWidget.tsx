@@ -1,6 +1,5 @@
 import { useControlIndicators } from '@/hooks/useOverviewData';
 import { RadarChart } from '@/components/control';
-import { LiveIndicator } from '@/components/dashboard/LiveIndicator';
 import { Card, CardContent } from '@/components/ui/Card';
 import { useTranslation } from '@/stores/languageStore';
 
@@ -14,7 +13,6 @@ export function RadarWidget() {
         <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
           {t('indicators')}
         </h3>
-        <LiveIndicator />
       </div>
       <CardContent className="p-2">
         <div className="h-72">

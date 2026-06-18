@@ -104,6 +104,12 @@ export interface EventLog {
   timestamp: string;
   status: 'success' | 'error' | 'pending';
   statusText?: string;
+  /** Network-alert severity, when the event originates from the IDS feed.
+   *  Drives the unified <Badge axis="alert"> instead of the plain status pill. */
+  alertType?: 'Emergencia' | 'Alerta' | 'Aviso';
+  /** ISA-18.2 criticality, when the event is a SCADA alarm. Drives the unified
+   *  <Badge axis="criticality"> instead of the plain status pill. */
+  criticality?: 'critical' | 'high' | 'medium' | 'low' | 'normal';
 }
 
 export interface FiltersState {

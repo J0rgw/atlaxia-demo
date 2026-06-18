@@ -85,38 +85,47 @@ export function AlertTimeline() {
     <Card padding="none">
       <CardHeader className="px-4 pt-4 pb-2">
         <CardTitle>{t('alertTimeline')}</CardTitle>
-        <div className="flex items-center gap-1">
-          {([
-            { label: '24h', d: 1 },
-            { label: '7d', d: 7 },
-            { label: '30d', d: 30 },
-          ] as const).map((opt) => (
-            <button
-              key={opt.d}
-              onClick={() => setDays(opt.d)}
-              className={`px-2 py-0.5 text-xs rounded font-medium transition-colors ${
-                days === opt.d
-                  ? 'bg-[var(--status-advisory-muted)] text-[var(--status-advisory)]'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-inset)]'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-          <div className="w-px h-4 bg-[var(--border-subtle)] mx-1" />
-          {(['hour', 'day'] as const).map((b) => (
-            <button
-              key={b}
-              onClick={() => setBucket(b)}
-              className={`px-2 py-0.5 text-xs rounded font-medium transition-colors ${
-                bucket === b
-                  ? 'bg-[var(--status-advisory-muted)] text-[var(--status-advisory)]'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-inset)]'
-              }`}
-            >
-              {b === 'hour' ? t('hourly') : t('daily')}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <div
+            role="group"
+            aria-label={t('dateRange')}
+            className="inline-flex items-center gap-0.5 rounded-lg bg-[var(--bg-inset)] p-1"
+          >
+            {([
+              { label: '24h', d: 1 },
+              { label: '7d', d: 7 },
+              { label: '30d', d: 30 },
+            ] as const).map((opt) => (
+              <button
+                key={opt.d}
+                onClick={() => setDays(opt.d)}
+                aria-pressed={days === opt.d}
+                className={`px-3 h-7 rounded-md text-xs font-medium whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40 ${
+                  days === opt.d
+                    ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] font-semibold shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <div className="inline-flex items-center gap-0.5 rounded-lg bg-[var(--bg-inset)] p-1">
+            {(['hour', 'day'] as const).map((b) => (
+              <button
+                key={b}
+                onClick={() => setBucket(b)}
+                aria-pressed={bucket === b}
+                className={`px-3 h-7 rounded-md text-xs font-medium whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40 ${
+                  bucket === b
+                    ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] font-semibold shadow-sm'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {b === 'hour' ? t('hourly') : t('daily')}
+              </button>
+            ))}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="px-2 pb-3">

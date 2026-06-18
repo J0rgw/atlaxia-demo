@@ -2,9 +2,9 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import { useReviewAnomalyEvent } from '@/hooks/useAnomalyEvents';
-import { buildEventInsights, CRIT_LABEL } from '@/lib/anomalyEventsInsights';
-import { FLUVIA_CRIT_BADGE } from '@/lib/statusStyles';
+import { buildEventInsights } from '@/lib/anomalyEventsInsights';
 import { eventSensorScores, eventSensorSeries } from '@/data/eventSeriesMock';
 import { EVENT_NARRATIVES } from '@/data/fluviaNarrativesMock';
 import type { AnomalyEvent, ReviewStatus } from '@/types';
@@ -113,15 +113,11 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
         </div>
         <div className="flex items-center gap-2">
           <span
-            className={cn(
-              'inline-flex px-2 py-0.5 text-xs font-medium',
-              event.posible
-                ? 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]'
-                : 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]'
-            )}
-            title="Eje SISTEMA — lo asigna el agregador, no es editable"
+            className="inline-flex items-center gap-1.5"
+            title="Eje SISTEMA: lo asigna el agregador, no es editable"
           >
-            Sistema · {event.posible ? 'Candidata' : 'Confirmada'}
+            <span className="text-xs text-[var(--text-secondary)]">Sistema</span>
+            <Badge axis="state" value={event.posible ? 'candidata' : 'confirmada'} />
           </span>
           <HeaderFilter
             label="Revisión"
@@ -154,8 +150,8 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
                     'w-full px-3 py-2 flex items-center gap-2 text-left transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-primary)]/40',
                     active
-                      ? 'bg-[var(--status-advisory-muted)] border-l-2 border-l-[var(--accent-primary)]'
-                      : 'hover:bg-[var(--bg-inset)] border-l-2 border-l-transparent'
+                      ? 'bg-[var(--status-advisory-muted)]'
+                      : 'hover:bg-[var(--bg-inset)]'
                   )}
                 >
                   <span
@@ -190,14 +186,14 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
         <div className="flex flex-col min-h-0 gap-2">
           <div className="flex items-center gap-4 text-[10px] font-readout text-[var(--text-secondary)] px-1">
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-4 h-0.5 bg-[#58a6ff] inline-block" /> observado
+              <span className="w-4 h-0.5 bg-[var(--status-advisory)] inline-block" /> observado
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-4 border-t-2 border-dashed border-[#bc8cff] inline-block" /> esperado
+              <span className="w-4 border-t-2 border-dashed border-[var(--accent-secondary)] inline-block" /> esperado
               (modelo)
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-2.5 bg-[rgba(248,81,73,0.18)] inline-block" /> residuo
+              <span className="w-3 h-2.5 bg-[var(--status-critical-muted)] inline-block" /> residuo
             </span>
             <span className="ml-auto text-[var(--text-muted)]">ventana del episodio ±10%</span>
           </div>
@@ -237,14 +233,16 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
           collapsible
           defaultOpen={false}
           headerExtra={
-            <span
-              className={cn(
-                'inline-block text-[9.5px] font-semibold px-2 py-0.5 rounded-full border uppercase tracking-wider',
-                FLUVIA_CRIT_BADGE[insights.crit]
-              )}
-            >
-              criticidad {CRIT_LABEL[insights.crit]}
-            </span>
+            <Badge
+              axis="criticality"
+              value={
+                insights.crit === 'crit'
+                  ? 'critical'
+                  : insights.crit === 'mid'
+                    ? 'medium'
+                    : insights.crit
+              }
+            />
           }
         >
           <div className="space-y-2">

@@ -106,6 +106,7 @@ export const translations = {
 
     // KPIs MCT
     systemStatus: 'Estado del Sistema',
+    agentStatus: 'Estado del Agente',
     devicesOnline: 'Dispositivos en Linea',
     criticalityLevel: 'Nivel de Criticidad',
     activeDevices: 'dispositivos activos',
@@ -520,6 +521,7 @@ export const translations = {
 
     // KPIs MCT
     systemStatus: 'System Status',
+    agentStatus: 'Agent Status',
     devicesOnline: 'Devices Online',
     criticalityLevel: 'Criticality Level',
     activeDevices: 'active devices',

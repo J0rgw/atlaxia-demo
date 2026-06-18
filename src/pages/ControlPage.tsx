@@ -1,5 +1,4 @@
 import { RadarChart, IndicatorsPanel } from '@/components/control';
-import { Badge } from '@/components/ui/Badge';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { mockControlIndicators } from '@/data/mockData';
 
@@ -8,9 +7,9 @@ export function ControlPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold text-[var(--text-primary)]">Sistema de Control</h1>
-        <Badge variant="info" className="bg-primary-100 text-primary-700">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-none text-xs font-medium font-readout bg-[var(--status-advisory-muted)] text-[var(--status-advisory)]">
           Sistema de Control
-        </Badge>
+        </span>
       </div>
 
       <div className="grid grid-cols-3 gap-6">

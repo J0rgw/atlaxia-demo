@@ -25,20 +25,22 @@ function eventPeak(event: AnomalyEvent): number {
 }
 
 /**
- * Color de la banda: episodios confirmados en rampa de ROJOS (intensidad =
- * grado de anomalía, más oscuro = peor, coherente con la escala del grafo);
- * candidatas sub-umbral en ÁMBAR (no cumplen las condiciones de episodio).
+ * Color de la banda, derivado de los tokens del tema vía `color-mix` (el
+ * navegador lo resuelve, así sigue a scada/modern × claro/oscuro): candidatas
+ * sub-umbral en ÁMBAR (status-warning); episodios confirmados en rampa de ROJOS
+ * de critical → emergency (más oscuro = peor, coherente con la escala del grafo),
+ * con la opacidad creciendo con el grado de anomalía.
  */
 function bandColor(event: AnomalyEvent): string {
   const peak = eventPeak(event);
   if (event.posible) {
-    return `rgba(210,153,34,${(0.5 + 0.4 * peak).toFixed(2)})`;
+    const pct = Math.round((0.5 + 0.4 * peak) * 100);
+    return `color-mix(in srgb, var(--status-warning) ${pct}%, transparent)`;
   }
   const t = Math.max(0, Math.min(1, (peak - 0.5) / 0.5));
-  const r = Math.round(248 + (153 - 248) * t);
-  const g = Math.round(81 + (27 - 81) * t);
-  const b = Math.round(73 + (27 - 73) * t);
-  return `rgba(${r},${g},${b},${(0.6 + 0.4 * t).toFixed(2)})`;
+  const alpha = Math.round((0.6 + 0.4 * t) * 100);
+  const ramp = Math.round(t * 100);
+  return `color-mix(in srgb, color-mix(in srgb, var(--status-emergency) ${ramp}%, var(--status-critical)) ${alpha}%, transparent)`;
 }
 
 interface HoverState {
@@ -185,14 +187,14 @@ export function EventsTimeline({
               <b className="text-[var(--text-link)]">#{hover.event.id}</b>
               <span
                 className={cn(
-                  'px-1.5 text-[9.5px] font-medium',
-                  (PLANT_LEVEL_CONFIG[hover.event.nivel_pico] ?? PLANT_LEVEL_CONFIG[0]).badge
+                  'font-readout text-[10px] font-semibold tracking-wide',
+                  (PLANT_LEVEL_CONFIG[hover.event.nivel_pico] ?? PLANT_LEVEL_CONFIG[0]).text
                 )}
               >
                 {(PLANT_LEVEL_CONFIG[hover.event.nivel_pico] ?? PLANT_LEVEL_CONFIG[0]).name}
               </span>
               {hover.event.closed_reason === null && (
-                <span className="text-[var(--status-critical)] font-semibold text-[9.5px]">
+                <span className="text-[var(--status-critical)] font-semibold text-[10px]">
                   EN CURSO
                 </span>
               )}

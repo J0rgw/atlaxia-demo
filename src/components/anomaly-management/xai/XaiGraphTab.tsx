@@ -87,13 +87,20 @@ export function XaiGraphTab() {
       </div>
 
       <div className="relative flex-1 min-h-[380px] rounded-md border border-[var(--border-subtle)] overflow-hidden bg-[var(--bg-base)] bg-[radial-gradient(var(--border-subtle)_1px,transparent_1.4px)] [background-size:26px_26px]">
+        {/* La interacción del lienzo (enfocar con el ratón, zoom, pan) es un
+            realce: la lectura esencial (procesos, sensor clave, acción) vive en
+            el panel «Interpretación», y los controles de vista (modo, sliders,
+            scrubber) son operables por teclado. Por eso el lienzo es role="img"
+            con una descripción honesta, no un control con foco que el teclado no
+            puede manejar. */}
         <canvas
           ref={canvasRef}
+          role="img"
+          aria-label="Grafo de sensores aprendido por el modelo. La interpretación en texto está en el panel «Interpretación» (derecha); el modo de vista, los controles y la línea temporal son operables por teclado."
           className="block w-full h-full cursor-grab"
-          aria-label="Grafo interactivo de sensores: pasa el ratón por un nodo para enfocar su red, rueda para zoom, arrastra el fondo para desplazar"
         />
         <XaiControls ui={ui} onChange={setUi} />
-        <XaiReadout info={analysis.explain} conn={ui.conn} procColor={dataset.procColor} />
+        <XaiReadout info={analysis.explain} conn={ui.conn} />
         {hover && (
           <div
             className="absolute pointer-events-none z-10 bg-[var(--bg-surface-raised)] border border-[var(--border-default)] rounded-sm px-2.5 py-1.5 font-readout text-[11px] text-[var(--text-primary)] leading-relaxed shadow-card"

@@ -18,7 +18,6 @@ import { BentoSummary } from './BentoSummary';
 import { EventsTable } from './EventsTable';
 import { EventDetailDialog } from './EventDetailDialog';
 import { FluviaRail } from './FluviaRail';
-import { HeaderFilter } from './HeaderFilter';
 import { POSIBLE_OPTIONS, RANGE_OPTIONS, REVIEW_OPTIONS } from './filterOptions';
 
 const DEFAULT_FILTERS: AnomalyEventFilters = {
@@ -157,7 +156,7 @@ export function AnomalyEventsTab() {
                 e.target.value &&
                 setFilters({ ...filters, customFrom: new Date(e.target.value).toISOString() })
               }
-              className="h-7 px-2 text-xs font-readout rounded-sm border border-[var(--border-default)] bg-[var(--bg-inset)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40"
+              className="h-7 pointer-coarse:h-9 px-2 text-xs font-readout rounded-sm border border-[var(--border-default)] bg-[var(--bg-inset)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40"
             />
             <span className="text-xs text-[var(--text-muted)]">→</span>
             <input
@@ -168,27 +167,33 @@ export function AnomalyEventsTab() {
                 e.target.value &&
                 setFilters({ ...filters, customTo: new Date(e.target.value).toISOString() })
               }
-              className="h-7 px-2 text-xs font-readout rounded-sm border border-[var(--border-default)] bg-[var(--bg-inset)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40"
+              className="h-7 pointer-coarse:h-9 px-2 text-xs font-readout rounded-sm border border-[var(--border-default)] bg-[var(--bg-inset)] text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40"
             />
           </div>
         )}
 
-        <HeaderFilter
-          label="Sistema"
-          variant="chip"
-          options={POSIBLE_OPTIONS}
-          value={filters.posible}
-          defaultValue="all"
-          onChange={(posible) => setFilters({ ...filters, posible })}
-        />
-        <HeaderFilter
-          label="Revisión"
-          variant="chip"
-          options={REVIEW_OPTIONS}
-          value={filters.review_status}
-          defaultValue="all"
-          onChange={(review_status) => setFilters({ ...filters, review_status })}
-        />
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)]">
+            Sistema
+          </span>
+          <Segmented
+            ariaLabel="Filtrar por estado del sistema"
+            value={filters.posible}
+            onChange={(posible) => setFilters({ ...filters, posible })}
+            options={POSIBLE_OPTIONS}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)]">
+            Revisión
+          </span>
+          <Segmented
+            ariaLabel="Filtrar por estado de revisión"
+            value={filters.review_status}
+            onChange={(review_status) => setFilters({ ...filters, review_status })}
+            options={REVIEW_OPTIONS}
+          />
+        </div>
 
         <div className="ml-auto flex items-center gap-3">
           {shownCount !== undefined && (
@@ -268,8 +273,6 @@ export function AnomalyEventsTab() {
                   <EventsTable
                     events={listQuery.data?.events}
                     isLoading={listQuery.isLoading}
-                    filters={filters}
-                    onFiltersChange={setFilters}
                     selectedId={displayed?.id ?? null}
                     onSelect={setSelected}
                   />

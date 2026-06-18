@@ -32,7 +32,7 @@ export function XaiTimeline({
         type="button"
         aria-label={playing ? 'Pausar' : 'Reproducir'}
         onClick={onTogglePlay}
-        className="w-8 h-8 rounded-sm bg-[var(--accent-primary)] text-white flex items-center justify-center shrink-0 transition-transform hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40"
+        className="w-8 h-8 pointer-coarse:h-11 pointer-coarse:w-11 rounded-sm bg-[var(--accent-primary)] text-white flex items-center justify-center shrink-0 transition-transform hover:brightness-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40"
       >
         {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
       </button>

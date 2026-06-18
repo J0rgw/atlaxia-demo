@@ -231,6 +231,27 @@ export function MachinesPage() {
         console.error('Error fetching machine sensors:', err);
         setError(t('loadingMachineSensors'));
         setLoading(false);
+        // A transient fetch failure (e.g. MSW's service worker still waking up
+        // after the tab returns from the background) must NOT collapse the page
+        // into the "No machine sensors / verify ThingsBoard" empty state. Keep
+        // any sensors we already have; if we have none yet, seed the grid from
+        // config (values null) so cards render and fill in on the next poll.
+        // See .demo-plan/0-bug-background-tab-freeze.md.
+        setSensors((prev) => {
+          if (prev.length > 0) return prev;
+          return getConfiguredTags().map((tag) => {
+            const mapping = getSensorMapping(tag);
+            return {
+              key: tag,
+              name: tag,
+              device_id: '',
+              device_name: '',
+              value: null,
+              timestamp: 0,
+              unit: mapping?.unit,
+            };
+          });
+        });
       }
     };
     fetchSensors();

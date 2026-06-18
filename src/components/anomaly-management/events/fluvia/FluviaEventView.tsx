@@ -1,10 +1,9 @@
 import { Check, Maximize2, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
-import { processChipOf } from '@/lib/anomalyEventsInsights';
-import { REVIEW_STATUS_CONFIG } from '@/lib/statusStyles';
+import { Badge } from '@/components/ui/Badge';
 import { EVENT_NARRATIVES } from '@/data/fluviaNarrativesMock';
 import type { AnomalyEvent, ReviewStatus } from '@/types';
-import { cn } from '@/lib/utils';
 import { FluviaMarkdown } from './FluviaMarkdown';
 import { linkifyRefs } from './overview';
 import { fmtDuration, fmtTimeShort } from '../format';
@@ -21,14 +20,12 @@ interface FluviaEventViewProps {
   verdictPending: boolean;
 }
 
-function MetaCell({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="min-w-0">
-      <p className="text-[9px] font-medium uppercase tracking-wider text-[var(--text-muted)]">{label}</p>
-      <p className="truncate font-readout text-xs text-[var(--text-primary)]">{children}</p>
-    </div>
-  );
-}
+/** Separador inline de la tira meta (punto medio, decorativo). */
+const MetaDot = () => (
+  <span aria-hidden className="text-[var(--border-emphasis)]">
+    ·
+  </span>
+);
 
 /**
  * Contenido contextual del rail en modo «Evento #N»: meta del episodio,
@@ -39,7 +36,6 @@ export function FluviaEventView({ event, onSelectRef, onOpenDetail, onVerdict, v
   const open = event.closed_reason === null;
   const narrative = EVENT_NARRATIVES[event.id];
   const pending = event.review_status === 'pending_review';
-  const review = REVIEW_STATUS_CONFIG[event.review_status];
 
   const narrativeMarkdown = narrative
     ? linkifyRefs(narrative.join('\n\n'))
@@ -48,18 +44,26 @@ export function FluviaEventView({ event, onSelectRef, onOpenDetail, onVerdict, v
 
   return (
     <div className="space-y-3">
-      {/* meta del episodio */}
-      <div className="grid grid-cols-2 gap-x-3 gap-y-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
-        <MetaCell label="Detecciones">{event.n_detecciones}</MetaCell>
-        <MetaCell label="Duración">{open ? 'en curso' : fmtDuration(event.duracion_segundos)}</MetaCell>
-        <MetaCell label="Sistema">
-          <span className={cn(event.posible ? 'text-[var(--status-warning)]' : 'text-[var(--status-critical)]')}>
-            {event.posible ? 'Candidata' : 'Confirmada'}
-          </span>
-        </MetaCell>
-        <MetaCell label="Revisión">
-          <span className={cn('inline-flex px-1.5 text-[10px] font-medium', review.badge)}>{review.label}</span>
-        </MetaCell>
+      {/* meta del episodio: tira inline (lectura SCADA, sin caja) — el nivel y la
+          navegación viven en la sub-cabecera; el estado de revisión, en el veredicto */}
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-readout text-xs text-[var(--text-secondary)]">
+        <span>
+          <b className="text-[var(--text-primary)]">{event.n_detecciones}</b> detecciones
+        </span>
+        <MetaDot />
+        <span className={open ? 'font-medium text-[var(--status-critical)]' : 'text-[var(--text-primary)]'}>
+          {open ? 'en curso' : fmtDuration(event.duracion_segundos)}
+        </span>
+        <MetaDot />
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className={cn(
+              'h-1.5 w-1.5 rounded-full',
+              event.posible ? 'bg-[var(--status-warning)]' : 'bg-[var(--status-critical)]'
+            )}
+          />
+          {event.posible ? 'Candidata' : 'Confirmada'}
+        </span>
       </div>
 
       {/* narrativa real del evento */}
@@ -68,21 +72,9 @@ export function FluviaEventView({ event, onSelectRef, onOpenDetail, onVerdict, v
       {/* señales implicadas */}
       {event.sensores_involucrados.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {event.sensores_involucrados.map((s) => {
-            const chip = processChipOf(s);
-            return (
-              <span
-                key={s}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-0.5 font-readout text-[10px] text-[var(--text-secondary)]"
-              >
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ backgroundColor: chip?.color ?? 'var(--border-default)' }}
-                />
-                {s}
-              </span>
-            );
-          })}
+          {event.sensores_involucrados.map((s) => (
+            <Badge key={s} tag={s} />
+          ))}
         </div>
       )}
 

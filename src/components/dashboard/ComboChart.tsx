@@ -2,7 +2,6 @@ import { EChart } from '@/components/ui/EChart';
 import { DARK_TOOLTIP, ATLAXIA_COLORS } from '@/lib/echarts-theme';
 import { useEChartsTheme } from '@/hooks/useEChartsTheme';
 import { Card, CardContent } from '@/components/ui/Card';
-import { LiveIndicator } from './LiveIndicator';
 import { useTranslation } from '@/stores/languageStore';
 import type { ProductionData } from '@/types';
 
@@ -112,7 +111,6 @@ export function ComboChart({ data }: ComboChartProps) {
         <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
           {t('realtimeAnalysis')}
         </h3>
-        <LiveIndicator />
       </div>
       <CardContent className="p-2">
         <div className="h-72">

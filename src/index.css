@@ -49,6 +49,62 @@
   --color-error-light: #7f1d1d;
 }
 
+/* ── Badge tokens (prototype v4 — do not recalculate) ─────────────────────
+   Theme-template-independent: one fixed light set + one fixed dark set, used
+   by <Badge> regardless of scada/modern variant. Dark applies via the global
+   .dark class (html.dark) OR a local [data-badge-theme="dark"] scope so the
+   verification page can show both modes side by side. */
+:root,
+[data-badge-theme='light'] {
+  --r-chip: 7px;
+  /* Badges follow the app's sans (Inter / IBM Plex Sans) — not the industrial
+     monospace — so they speak the same typographic language as the rest of UI. */
+  --font-badge: var(--font-sans), 'Inter', system-ui, -apple-system, sans-serif;
+
+  --chip: #f4f6fa;
+  --cbd: #dde2ea;
+  --ink2: #2b313c;
+  --acc: #2f54c9;
+
+  /* Unified white text: all -fg are #ffffff; backgrounds are dark enough for
+     white to stay legible (light tones darkened from v4 to make room for it). */
+  --badge-cobalt-bg: #2f54c9;   --badge-cobalt-fg: #ffffff;
+  --badge-neutral-bg: #5d6a85;  --badge-neutral-fg: #ffffff;
+  --badge-critical-bg: #c5392b; --badge-critical-fg: #ffffff;
+  --badge-high-bg: #b56a1c;     --badge-high-fg: #ffffff;
+  --badge-medium-bg: #a87a1a;   --badge-medium-fg: #ffffff;
+  --badge-low-bg: #1f87b0;      --badge-low-fg: #ffffff;
+  --badge-normal-bg: #707b91;   --badge-normal-fg: #ffffff;
+
+  /* Triage (state) — slate graded by luminosity (same hue as neutral). */
+  --badge-neutral-faint-bg: #828ca0;  --badge-neutral-faint-fg: #ffffff;
+  --badge-neutral-strong-bg: #2b313c; --badge-neutral-strong-fg: #ffffff;
+  --badge-neutral-muted-bg: #6f7686;  --badge-neutral-muted-fg: #ffffff;
+}
+
+.dark,
+[data-badge-theme='dark'] {
+  --chip: #1b1f27;
+  --cbd: #2d333e;
+  --ink2: #dfe3ea;
+  --acc: #6f8bf0;
+
+  /* Unified white text (see light block). neutral-strong's bg, light in v4,
+     is darkened so white stays legible while still reading as the strongest. */
+  --badge-cobalt-bg: #4666d6;   --badge-cobalt-fg: #ffffff;
+  --badge-neutral-bg: #454e63;  --badge-neutral-fg: #ffffff;
+  --badge-critical-bg: #c5392b; --badge-critical-fg: #ffffff;
+  --badge-high-bg: #ad631a;     --badge-high-fg: #ffffff;
+  --badge-medium-bg: #94701a;   --badge-medium-fg: #ffffff;
+  --badge-low-bg: #1c7ba3;      --badge-low-fg: #ffffff;
+  --badge-normal-bg: #3a4150;   --badge-normal-fg: #ffffff;
+
+  /* Triage (state) — grade by luminosity (lighter slate = stronger). */
+  --badge-neutral-faint-bg: #262c37;  --badge-neutral-faint-fg: #ffffff;
+  --badge-neutral-strong-bg: #59647c; --badge-neutral-strong-fg: #ffffff;
+  --badge-neutral-muted-bg: #20242c;  --badge-neutral-muted-fg: #ffffff;
+}
+
 * {
   margin: 0;
   padding: 0;

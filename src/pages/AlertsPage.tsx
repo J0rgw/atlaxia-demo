@@ -1,16 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Search, ChevronLeft, ChevronRight, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useNetworkAlerts, useAcknowledgeAlert } from '@/hooks/useNetwork';
 import { useTranslation } from '@/stores/languageStore';
 import { AlertTimeline } from '@/components/network';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-
-const ALERT_TYPE_STYLES: Record<string, string> = {
-  Emergencia: 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]',
-  Alerta: 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]',
-  Aviso: 'bg-[var(--status-normal-muted)] text-[var(--status-normal)]',
-};
+import { Badge } from '@/components/ui/Badge';
 
 const PAGE_SIZE = 25;
 
@@ -50,10 +44,10 @@ export function AlertsPage() {
     acknowledgeMutation.mutate(alertId);
   };
 
-  const summaryCards = useMemo(() => [
-    { label: 'Emergencia', count: byType.Emergencia || 0, color: 'bg-[var(--status-critical)]', textColor: 'text-[var(--status-critical)]' },
-    { label: 'Alerta', count: byType.Alerta || 0, color: 'bg-[var(--status-warning)]', textColor: 'text-[var(--status-warning)]' },
-    { label: 'Aviso', count: byType.Aviso || 0, color: 'bg-[var(--status-normal)]', textColor: 'text-[var(--status-normal)]' },
+  const summaryCards = useMemo<{ label: 'Emergencia' | 'Alerta' | 'Aviso'; count: number }[]>(() => [
+    { label: 'Emergencia', count: byType.Emergencia || 0 },
+    { label: 'Alerta', count: byType.Alerta || 0 },
+    { label: 'Aviso', count: byType.Aviso || 0 },
   ], [byType]);
 
   return (
@@ -70,10 +64,9 @@ export function AlertsPage() {
             key={card.label}
             className="bg-[var(--bg-surface)] rounded-lg border border-[var(--border-subtle)] p-4 flex items-center gap-4"
           >
-            <div className={cn('w-3 h-3 rounded-full', card.color)} />
             <div>
               <p className="text-2xl font-bold text-[var(--text-primary)]">{card.count}</p>
-              <p className={cn('text-sm font-medium', card.textColor)}>{card.label}</p>
+              <Badge axis="alert" value={card.label === 'Emergencia' ? 'emergencia' : card.label === 'Alerta' ? 'alerta' : 'aviso'} />
             </div>
           </div>
         ))}
@@ -205,14 +198,7 @@ export function AlertsPage() {
                 {alerts.map((alert) => (
                   <tr key={alert.id} className="hover:bg-[var(--bg-inset)] transition-colors">
                     <td className="px-3 py-2.5">
-                      <span
-                        className={cn(
-                          'inline-flex px-2 py-0.5 text-xs font-medium rounded whitespace-nowrap',
-                          ALERT_TYPE_STYLES[alert.type] || 'bg-[var(--bg-inset)] text-[var(--text-primary)]'
-                        )}
-                      >
-                        {alert.type}
-                      </span>
+                      <Badge axis="alert" value={alert.type === 'Emergencia' ? 'emergencia' : alert.type === 'Alerta' ? 'alerta' : 'aviso'} />
                     </td>
                     <td className="px-3 py-2.5 text-sm text-[var(--text-primary)] max-w-[200px] truncate">
                       {alert.name}

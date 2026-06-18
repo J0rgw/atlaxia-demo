@@ -19,6 +19,29 @@ export interface ApiError {
   status: number;
 }
 
+// Transient-failure retry budget for idempotent GETs. In the MSW-backed demo,
+// the service worker can be evicted while the tab sits in the background; the
+// first requests after returning race ahead of the worker re-taking control and
+// either reject (network error) or hit the dev server's SPA fallback and return
+// non-JSON HTML. A couple of short retries gives the worker time to wake up so
+// the page recovers without a reload. See
+// .demo-plan/0-bug-background-tab-freeze.md.
+const GET_RETRY_ATTEMPTS = 2;
+const GET_RETRY_DELAY_MS = 150;
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Whether a thrown error looks like the MSW wake-up race rather than a real
+ * backend response: a fetch network rejection (TypeError) or our explicit
+ * malformed-response marker. A normal ApiError carrying an HTTP status is a
+ * genuine response and is NOT retried.
+ */
+function isTransient(err: unknown): boolean {
+  if (err instanceof TypeError) return true; // fetch() rejected — no response
+  return typeof err === 'object' && err !== null && (err as { transient?: boolean }).transient === true;
+}
+
 class ApiClient {
   private baseUrl: string;
   private refreshPromise: Promise<string | null> | null = null;
@@ -90,6 +113,26 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    const isGet = (options.method ?? 'GET').toUpperCase() === 'GET';
+    const maxAttempts = isGet ? GET_RETRY_ATTEMPTS + 1 : 1;
+
+    let lastErr: unknown;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        return await this._attempt<T>(endpoint, options);
+      } catch (err) {
+        lastErr = err;
+        // Only retry transient failures on idempotent GETs. A well-formed
+        // ApiError (4xx/5xx with a JSON body) is a real response, not the MSW
+        // wake-up race, so it propagates immediately.
+        if (!isGet || attempt === maxAttempts - 1 || !isTransient(err)) throw err;
+        await sleep(GET_RETRY_DELAY_MS * (attempt + 1));
+      }
+    }
+    throw lastErr;
+  }
+
+  private async _attempt<T>(endpoint: string, options: RequestInit): Promise<T> {
     const token = this.getToken();
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -121,7 +164,13 @@ class ApiClient {
       throw { detail: error.detail || 'Request failed', status: response.status } as ApiError;
     }
 
-    return response.json();
+    // A request that escaped MSW and hit the dev server's SPA fallback returns
+    // HTML with a 200; parsing it throws a SyntaxError we treat as transient.
+    try {
+      return (await response.json()) as T;
+    } catch {
+      throw { detail: 'Malformed response', status: response.status, transient: true } as ApiError & { transient: true };
+    }
   }
 
   async get<T>(endpoint: string): Promise<T> {

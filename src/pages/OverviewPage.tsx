@@ -17,7 +17,6 @@ import {
   KPICard,
   CalendarWithDetail,
   EventLog,
-  LiveIndicator,
   ProcessCriticalityGauge,
   AnomalyScatterChart,
 } from '@/components/dashboard';
@@ -225,7 +224,6 @@ export function OverviewPage() {
               <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
                 {t('indicators')}
               </h3>
-              <LiveIndicator />
             </div>
             <CardContent className="p-2">
               <div className="h-72">
@@ -268,7 +266,6 @@ export function OverviewPage() {
               <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
                 {t('anomalyDetection')}
               </h3>
-              <LiveIndicator />
             </div>
             <CardContent className="p-2">
               <Skeleton.Bar className="h-72 w-full" rounded="lg" />

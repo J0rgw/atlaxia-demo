@@ -4,7 +4,6 @@ import { DARK_TOOLTIP, ATLAXIA_COLORS } from '@/lib/echarts-theme';
 import { useEChartsTheme } from '@/hooks/useEChartsTheme';
 import { useProcessStatus } from '@/hooks/useOverviewData';
 import { Card, CardContent } from '@/components/ui/Card';
-import { LiveIndicator } from './LiveIndicator';
 import { useTranslation } from '@/stores/languageStore';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -103,7 +102,6 @@ export function ProcessStatusChart() {
         <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
           {t('processStatus')}
         </h3>
-        <LiveIndicator />
         {data && (
           <span className="ml-auto text-[10px] text-[var(--text-muted)] font-readout">
             {data.total_alarms} {t('sensorsInAlarm')}

@@ -48,6 +48,9 @@ const DataOverviewPage = lazy(() =>
 const NetworkOverviewPage = lazy(() =>
   import('@/pages/NetworkOverviewPage').then((m) => ({ default: m.NetworkOverviewPage }))
 );
+const BadgesPage = lazy(() =>
+  import('@/pages/dev/BadgesPage').then((m) => ({ default: m.BadgesPage }))
+);
 
 function RouteFallback() {
   return (
@@ -102,6 +105,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<ErrorBoundary level="page"><LoginPage /></ErrorBoundary>} />
           <Route path="/setup" element={<ErrorBoundary level="page"><SetupWizard /></ErrorBoundary>} />
+          <Route path="/dev/badges" element={<ErrorBoundary level="page"><BadgesPage /></ErrorBoundary>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Suspense>
@@ -222,6 +226,8 @@ function App() {
               </ErrorBoundary>
             </ProtectedRoute>
           } />
+
+          <Route path="/dev/badges" element={<ErrorBoundary level="page"><BadgesPage /></ErrorBoundary>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

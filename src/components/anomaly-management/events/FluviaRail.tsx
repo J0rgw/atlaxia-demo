@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, LayoutGrid, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
 import { AssistantRuntimeProvider } from '@assistant-ui/react';
 import { cn } from '@/lib/utils';
 import { PLANT_LEVEL_CONFIG } from '@/lib/statusStyles';
 import { useReviewAnomalyEvent } from '@/hooks/useAnomalyEvents';
 import type { AnomalyEvent, AnomalyEventFilters, ReviewStatus } from '@/types';
+import { FluviaGlyph } from '../FluviaGlyph';
 import { buildOverview } from './fluvia/overview';
 import { eventAnswer, eventSuggestions, OVERVIEW_SUGGESTIONS, overviewAnswer } from './fluvia/chatMock';
 import { useFluviaMockRuntime, usePrefersReducedMotion } from './fluvia/useFluviaMockRuntime';
@@ -26,8 +27,16 @@ interface FluviaRailProps {
 }
 
 const DEMO_PILL = (
-  <span className="font-readout text-[9px] uppercase tracking-wider text-[var(--text-muted)] border border-[var(--border-subtle)] rounded-full px-2 py-0.5 whitespace-nowrap">
-    futuro asistente · demo
+  <span
+    style={{
+      background: 'var(--bg-surface)',
+      color: 'var(--text-muted)',
+      borderRadius: 'var(--r-chip)',
+      fontFamily: 'var(--font-badge)',
+    }}
+    className="inline-flex items-center justify-center align-middle h-[25px] px-[10px] text-[11px] font-medium leading-none tracking-[0.03em] whitespace-nowrap border border-[var(--border-subtle)] select-none"
+  >
+    demo
   </span>
 );
 
@@ -92,9 +101,8 @@ export function FluviaRail({ events, isLoading, filters, selected, onSelect, onO
         {/* cabecera: flex-none */}
         <header className="flex-none border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2.5 px-4 py-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
+            {/* marca FluvIA: glifo de flujo compartido (plano, sin degradado) */}
+            <FluviaGlyph size="md" />
             <span className="truncate text-sm font-bold text-[var(--text-primary)]">
               FluvIA{' '}
               <span className="font-medium text-[var(--accent-primary)]">
@@ -117,7 +125,7 @@ export function FluviaRail({ events, isLoading, filters, selected, onSelect, onO
               </button>
 
               {level && (
-                <span className={cn('ml-auto inline-flex px-2 py-0.5 text-[10px] font-medium font-readout', level.badge)}>
+                <span className={cn('ml-auto font-readout text-xs font-semibold tracking-wide', level.text)}>
                   {level.name}
                 </span>
               )}
@@ -128,7 +136,7 @@ export function FluviaRail({ events, isLoading, filters, selected, onSelect, onO
                   aria-label="Episodio anterior"
                   disabled={index <= 0}
                   onClick={() => index > 0 && onSelect(ordered[index - 1])}
-                  className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-l-md text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-primary)]/40"
+                  className="flex h-6 w-6 pointer-coarse:h-9 pointer-coarse:w-9 cursor-pointer items-center justify-center rounded-l-md text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-primary)]/40"
                 >
                   <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
@@ -140,7 +148,7 @@ export function FluviaRail({ events, isLoading, filters, selected, onSelect, onO
                   aria-label="Episodio siguiente"
                   disabled={index < 0 || index >= ordered.length - 1}
                   onClick={() => index < ordered.length - 1 && onSelect(ordered[index + 1])}
-                  className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-r-md text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-primary)]/40"
+                  className="flex h-6 w-6 pointer-coarse:h-9 pointer-coarse:w-9 cursor-pointer items-center justify-center rounded-r-md text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-primary)]/40"
                 >
                   <ChevronRight className="h-3.5 w-3.5" />
                 </button>

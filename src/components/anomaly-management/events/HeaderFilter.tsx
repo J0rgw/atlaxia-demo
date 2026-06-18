@@ -44,7 +44,7 @@ export function HeaderFilter<T extends string>({
             'inline-flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40',
             variant === 'header'
               ? 'text-xs font-medium uppercase tracking-wider'
-              : 'h-7 px-2.5 text-xs font-medium rounded-sm border border-[var(--border-subtle)] bg-[var(--bg-inset)]',
+              : 'h-7 pointer-coarse:h-9 px-2.5 text-xs font-medium rounded-sm border border-[var(--border-subtle)] bg-[var(--bg-inset)]',
             active
               ? 'text-[var(--accent-primary)]'
               : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'

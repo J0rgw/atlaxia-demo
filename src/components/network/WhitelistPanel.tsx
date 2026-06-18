@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { useTranslation } from '@/stores/languageStore';
 import {
   useWhitelist,
@@ -190,32 +191,20 @@ export function WhitelistPanel() {
                   ) : (
                     <tr key={entry.id} className={cn('hover:bg-[var(--bg-inset)] transition-colors', !entry.isActive && 'opacity-50')}>
                       <td className="px-3 py-2.5">
-                        <span className="inline-flex px-1.5 py-0.5 text-xs font-readout rounded bg-[var(--bg-inset)] text-[var(--text-secondary)]">
-                          {entry.entryType}
-                        </span>
+                        <Badge axis="entry" value={String(entry.entryType).startsWith('mac') ? 'mac' : 'ip'} />
                       </td>
                       <td className="px-3 py-2.5 text-sm font-readout text-[var(--text-primary)]">{entry.pattern}</td>
                       <td className="px-3 py-2.5 text-xs text-[var(--text-secondary)] max-w-[160px] truncate">{entry.description || '-'}</td>
                       <td className="px-3 py-2.5">
-                        <span className={cn('inline-flex px-2 py-0.5 text-xs font-medium rounded-full', {
-                          'bg-[var(--status-critical-muted)] text-[var(--status-critical)]': entry.autoImportance === 'Alta',
-                          'bg-[var(--status-warning-muted)] text-[var(--status-warning)]': entry.autoImportance === 'Media',
-                          'bg-[var(--bg-inset)] text-[var(--text-secondary)]': entry.autoImportance === 'Baja',
-                        })}>
-                          {entry.autoImportance}
-                        </span>
+                        <Badge axis="importance" value={entry.autoImportance === 'Alta' ? 'alta' : entry.autoImportance === 'Media' ? 'media' : 'baja'} />
                       </td>
                       <td className="px-3 py-2.5">
                         <div className="flex gap-2">
                           {entry.autoAuthorize && (
-                            <span className="inline-flex px-1.5 py-0.5 text-[10px] font-medium rounded bg-[var(--status-normal-muted)] text-[var(--status-normal)]">
-                              {t('authorized')}
-                            </span>
+                            <Badge axis="flag" value="autorizado" />
                           )}
                           {entry.autoCritical && (
-                            <span className="inline-flex px-1.5 py-0.5 text-[10px] font-medium rounded bg-[var(--status-critical-muted)] text-[var(--status-critical)]">
-                              {t('critical')}
-                            </span>
+                            <Badge axis="flag" value="critico" />
                           )}
                         </div>
                       </td>

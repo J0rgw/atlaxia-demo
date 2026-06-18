@@ -120,16 +120,22 @@ export function FiltersPanel() {
             <label className="text-sm font-medium text-[var(--text-primary)] mb-2 block">
               {t('dateRange')}
             </label>
-            <div className="grid grid-cols-4 gap-1.5">
+            <div
+              role="group"
+              aria-label={t('dateRange')}
+              className="flex w-full items-center gap-0.5 rounded-lg bg-[var(--bg-inset)] p-1"
+            >
               {dateRangeOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setFilters({ dateRange: option.value })}
+                  aria-pressed={filters.dateRange === option.value}
                   className={cn(
-                    'px-2 py-1.5 text-xs font-medium rounded-lg border transition-colors',
+                    'flex-1 px-2 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-all',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40',
                     filters.dateRange === option.value
-                      ? 'bg-primary-600 text-white border-primary-600'
-                      : 'bg-[var(--bg-surface)] text-[var(--text-primary)] border-[var(--border-subtle)] hover:bg-[var(--bg-inset)] dark:hover:bg-[var(--bg-inset)]'
+                      ? 'bg-[var(--bg-surface)] text-[var(--text-primary)] font-semibold shadow-sm'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   )}
                 >
                   {t(option.labelKey)}
@@ -186,31 +192,6 @@ export function FiltersPanel() {
                   {t(option.labelKey)}
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Anomaly Threshold */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-[var(--text-primary)]">
-                {t('anomalyThreshold')}
-              </label>
-              <span className="text-xs font-readout text-[var(--text-secondary)] bg-[var(--bg-inset)] px-1.5 py-0.5 rounded">
-                {filters.anomalyThreshold.toFixed(2)}
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={filters.anomalyThreshold}
-              onChange={(e) => setFilters({ anomalyThreshold: parseFloat(e.target.value) })}
-              className="w-full h-1.5 bg-[var(--bg-inset)] dark:bg-[var(--bg-inset)] rounded-lg appearance-none cursor-pointer accent-primary-600"
-            />
-            <div className="flex justify-between text-[10px] text-[var(--text-muted)] mt-1">
-              <span>0.00</span>
-              <span>1.00</span>
             </div>
           </div>
 

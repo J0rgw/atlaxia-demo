@@ -2,7 +2,9 @@ import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { EChart } from '@/components/ui/EChart';
 import { useEChartsTheme } from '@/hooks/useEChartsTheme';
+import { useTheme } from '@/providers/ThemeProvider';
 import { ATLAXIA_COLORS } from '@/lib/echarts-theme';
+import { hexToRgba, readCssVar } from '@/lib/cssVar';
 import type { EventSensorSeries } from '@/data/eventSeriesMock';
 
 interface EventSensorChartProps {
@@ -11,11 +13,6 @@ interface EventSensorChartProps {
   eventEndMs: number;
   score: number;
 }
-
-/** Color del "esperado por el modelo" — accent-secondary del design system. */
-const EXPECTED_COLOR = '#bc8cff';
-/** Relleno del residuo (área entre curvas) — critical a baja opacidad. */
-const RESIDUAL_FILL = 'rgba(248,81,73,0.12)';
 
 /**
  * Gráfica minimalista del sensor en la ventana del evento (±10%): línea
@@ -31,8 +28,17 @@ const RESIDUAL_FILL = 'rgba(248,81,73,0.12)';
  */
 export function EventSensorChart({ series, eventStartMs, eventEndMs, score }: EventSensorChartProps) {
   const { theme, isDark } = useEChartsTheme();
+  // El canvas de ECharts no resuelve `var()`: leemos los tokens del tema activo
+  // (scada/modern × claro/oscuro) en tiempo real. mode/variant son la clave del
+  // memo para que el repintado siga al cambio de tema, igual que `isDark`.
+  const { mode, variant } = useTheme();
 
   const option = useMemo(() => {
+    // observado = status-advisory; esperado = accent-secondary; residuo = critical.
+    const observedColor = readCssVar('--status-advisory', ATLAXIA_COLORS.primary);
+    const expectedColor = readCssVar('--accent-secondary', '#bc8cff');
+    const residualFill = hexToRgba(readCssVar('--status-critical', '#f85149'), 0.12);
+
     const pts = series.points;
     const t0 = pts[0]?.ts ?? eventStartMs;
     const tEnd = pts[pts.length - 1]?.ts ?? eventEndMs;
@@ -42,9 +48,13 @@ export function EventSensorChart({ series, eventStartMs, eventEndMs, score }: Ev
     const observed = pts.map((p) => [rel(p.ts), p.observed]);
     const expected = pts.map((p) => [rel(p.ts), p.expected]);
 
-    const mutedText = '#8b949e';
-    const guide = isDark ? 'rgba(139,148,158,0.16)' : 'rgba(139,148,158,0.22)';
-    const cut = isDark ? 'rgba(139,148,158,0.55)' : 'rgba(89,99,110,0.5)';
+    // Cromo del chart desde tokens (igual que las series): el canvas no resuelve
+    // `var()`, así que leemos el valor del tema activo. Sin esto los grises
+    // quedaban clavados a scada-claro y no seguían a modern ni al modo oscuro
+    // (ni al branding por inquilino) — el antipatrón que rompe «Identity propaga».
+    const mutedText = readCssVar('--text-muted', '#8b949e');
+    const guide = readCssVar('--border-subtle', isDark ? '#21262d' : '#d1d5db');
+    const cut = readCssVar('--border-emphasis', isDark ? '#484f58' : '#6b7280');
 
     return {
       animation: false,
@@ -115,7 +125,7 @@ export function EventSensorChart({ series, eventStartMs, eventEndMs, score }: Ev
                 ...[...expected].reverse().map(([x, y]) => api.coord([x, y])),
               ],
             },
-            style: { fill: RESIDUAL_FILL },
+            style: { fill: residualFill },
             silent: true,
           }),
           data: [observed[0] ?? [0, 0]],
@@ -128,8 +138,8 @@ export function EventSensorChart({ series, eventStartMs, eventEndMs, score }: Ev
           smooth: true,
           showSymbol: false,
           z: 2,
-          color: EXPECTED_COLOR, // color de serie: marcadores de tooltip/axisPointer
-          lineStyle: { width: 1.6, color: EXPECTED_COLOR, type: 'dashed' as const },
+          color: expectedColor, // color de serie: marcadores de tooltip/axisPointer
+          lineStyle: { width: 1.6, color: expectedColor, type: 'dashed' as const },
           emphasis: { disabled: true },
         },
         {
@@ -139,8 +149,8 @@ export function EventSensorChart({ series, eventStartMs, eventEndMs, score }: Ev
           smooth: true,
           showSymbol: false,
           z: 3,
-          color: ATLAXIA_COLORS.primary,
-          lineStyle: { width: 2, color: ATLAXIA_COLORS.primary },
+          color: observedColor,
+          lineStyle: { width: 2, color: observedColor },
           emphasis: { disabled: true },
           // cortes sutiles del episodio: dos verticales discontinuas
           markLine: {
@@ -154,7 +164,10 @@ export function EventSensorChart({ series, eventStartMs, eventEndMs, score }: Ev
         },
       ],
     };
-  }, [series, eventStartMs, eventEndMs, isDark]);
+    // mode/variant no se referencian en el cuerpo: son claves de caché que
+    // fuerzan releer los tokens CSS del tema (lectura del DOM que el linter no ve).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [series, eventStartMs, eventEndMs, isDark, mode, variant]);
 
   return (
     <div className="border border-[var(--border-subtle)] rounded-sm bg-[var(--bg-surface)]">

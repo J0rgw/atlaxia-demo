@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ChevronDown, Sparkles } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FluviaGlyph } from './FluviaGlyph';
 
 /** Renderiza un párrafo de narrativa con énfasis `**negrita**` → <b>. */
 export function FluviaProse({ text, className }: { text: string; className?: string }) {
@@ -58,19 +59,12 @@ export function FluviaBox({
             'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/40 rounded-sm'
         )}
       >
-        <span
-          className={cn(
-            'rounded-md flex items-center justify-center bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shrink-0',
-            size === 'md' ? 'w-7 h-7' : 'w-6 h-6'
-          )}
-        >
-          <Sparkles className={size === 'md' ? 'w-4 h-4' : 'w-3.5 h-3.5'} />
-        </span>
+        <FluviaGlyph size={size} />
         <span className={cn('font-bold text-[var(--text-primary)]', size === 'md' ? 'text-md' : 'text-sm')}>
           FluvIA <span className="text-[var(--accent-primary)] font-medium">{context}</span>
         </span>
-        <span className="font-readout text-[9px] text-[var(--text-muted)] border border-[var(--border-subtle)] rounded-full px-2 py-0.5 uppercase tracking-wider">
-          futuro asistente · demo
+        <span className="font-readout text-[10px] text-[var(--text-muted)] border border-[var(--border-subtle)] rounded-full px-2 py-0.5 uppercase tracking-wider">
+          DEMO
         </span>
         {headerExtra && <span className="ml-auto flex items-center gap-2 flex-wrap">{headerExtra}</span>}
         {collapsible && (

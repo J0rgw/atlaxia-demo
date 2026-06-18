@@ -1,9 +1,17 @@
 /**
- * Paleta del engine de canvas por tema. El canvas no puede leer CSS vars en
- * cada frame, así que los tokens SCADA se materializan aquí (espejo de
- * styles/themes/scada.css). La escala de calor y los colores de proceso son
- * idénticos en ambos modos (regla ISA-101: el estado no cambia con el tema).
+ * Paleta del engine de canvas. El canvas no resuelve `var()`, así que aquí
+ * MATERIALIZAMOS los tokens del tema activo (scada/modern × claro/oscuro +
+ * branding por inquilino) leyéndolos en el momento de la llamada. `getEnginePalette`
+ * se invoca por render / cambio de tema (no por frame: el objeto se reusa entre
+ * frames), por eso resolver tokens aquí es seguro. Las constantes LIGHT/DARK son
+ * el *fallback* exacto para SSR/tests sin DOM; en navegador los valores siguen al
+ * tema y al accent del inquilino. (Antes esto era un espejo estático de scada: el
+ * grafo no seguía a modern ni al rebrand — focusAccent y tuberías clavados en
+ * azul.) La escala de calor y los colores de proceso son colores de DATO, fijos
+ * en ambos modos (regla ISA-101: el estado no cambia con el tema/branding).
  */
+
+import { hexToRgba, readCssVar } from '../cssVar';
 
 export interface EnginePalette {
   isDark: boolean;
@@ -72,7 +80,31 @@ const DARK: EnginePalette = {
 };
 
 export function getEnginePalette(isDark: boolean): EnginePalette {
-  return isDark ? DARK : LIGHT;
+  const fb = isDark ? DARK : LIGHT;
+  // accent del inquilino: tiñe el foco y la corriente de las tuberías (el motivo
+  // «flow» = el color de marca). Antes hardcodeado a azul → no seguía el rebrand.
+  const accent = readCssVar('--accent-primary', fb.focusAccent);
+  return {
+    isDark,
+    nodeFill: readCssVar('--bg-surface', fb.nodeFill),
+    nodeStroke: hexToRgba(readCssVar('--text-primary', isDark ? '#e6edf3' : '#1f2328'), isDark ? 0.28 : 0.3),
+    contextRing: hexToRgba(readCssVar('--text-muted', isDark ? '#484f58' : '#8b949e'), 0.9),
+    edge: hexToRgba(readCssVar('--border-emphasis', isDark ? '#484f58' : '#6b7280'), isDark ? 0.5 : 0.55),
+    edgeHead: hexToRgba(readCssVar('--text-secondary', isDark ? '#8b949e' : '#59636e'), isDark ? 0.9 : 0.92),
+    focusAccent: accent,
+    focusGlow: hexToRgba(accent, 0.55),
+    labelText: readCssVar('--text-secondary', fb.labelText),
+    labelTextFocus: readCssVar('--text-primary', fb.labelTextFocus),
+    // el halo «borra» el fondo del lienzo tras la etiqueta → debe seguir a --bg-base.
+    labelHalo: hexToRgba(readCssVar('--bg-base', isDark ? '#0d1117' : '#f0f2f5'), 0.92),
+    dimLabel: hexToRgba(readCssVar('--text-muted', isDark ? '#484f58' : '#8b949e'), 0.7),
+    pipeOuter: hexToRgba(accent, isDark ? 0.18 : 0.22),
+    pipeInner: hexToRgba(accent, isDark ? 0.8 : 0.85),
+    pipeChevron: hexToRgba(accent, 0.95),
+    procLabelBg: hexToRgba(readCssVar('--bg-surface-raised', isDark ? '#1c2330' : '#ffffff'), 0.94),
+    procLabelText: readCssVar('--text-primary', fb.procLabelText),
+    emptyText: hexToRgba(readCssVar('--text-muted', isDark ? '#8b949e' : '#64748b'), 0.9),
+  };
 }
 
 /** Fallback para procesos sin color asignado en el dataset (gris neutro). */

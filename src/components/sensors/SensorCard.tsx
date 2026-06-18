@@ -12,6 +12,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/Badge';
 import type {
   IndustrialSensor,
   SensorEvaluation,
@@ -186,15 +187,10 @@ export function SensorCard({
       <div className="flex items-start justify-between mb-3 gap-2">
         <div className="flex items-center gap-2 flex-wrap min-w-0">
           <h3 className="font-bold text-[var(--text-primary)] text-sm">{sensor.tag}</h3>
-          <span
-            className={cn(
-              'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider',
-              config.badgeBg,
-              config.badgeText,
-            )}
-          >
-            {config.label}
-          </span>
+          <Badge
+            axis="sensor"
+            value={status === 'critical' ? 'crit' : status === 'warning' ? 'warn' : 'ok'}
+          />
         </div>
         {onFavoriteToggle && (
           <button

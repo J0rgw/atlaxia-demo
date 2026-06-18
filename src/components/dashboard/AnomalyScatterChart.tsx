@@ -3,7 +3,6 @@ import { EChart } from '@/components/ui/EChart';
 import { DARK_TOOLTIP, ATLAXIA_COLORS, SERIES_PALETTE } from '@/lib/echarts-theme';
 import { useEChartsTheme } from '@/hooks/useEChartsTheme';
 import { Card, CardContent } from '@/components/ui/Card';
-import { LiveIndicator } from './LiveIndicator';
 import { useTranslation } from '@/stores/languageStore';
 
 interface AnomalyItem {
@@ -142,7 +141,6 @@ export function AnomalyScatterChart({ anomalies, threshold, anomalyCount }: Anom
         <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
           {t('anomalyDetection')}
         </h3>
-        <LiveIndicator />
         {anomalyCount !== undefined && anomalyCount > 0 && (
           <span className="ml-auto text-[10px] font-readout px-1.5 py-0.5 rounded bg-[var(--status-critical-muted)] text-[var(--status-critical)]">
             {anomalyCount} {t('anomalyCount')}

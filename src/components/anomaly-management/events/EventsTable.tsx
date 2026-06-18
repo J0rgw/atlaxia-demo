@@ -1,25 +1,22 @@
 import { cn } from '@/lib/utils';
 import { StatusDot } from '@/components/ui/StatusDot';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { PLANT_LEVEL_CONFIG, REVIEW_STATUS_CONFIG } from '@/lib/statusStyles';
-import type { AnomalyEvent, AnomalyEventFilters } from '@/types';
+import { Badge } from '@/components/ui/Badge';
+import { criticalityFromLevel } from '@/lib/statusStyles';
+import type { AnomalyEvent } from '@/types';
 import { fmtDuration, fmtTimeShort } from './format';
-import { HeaderFilter } from './HeaderFilter';
-import { POSIBLE_OPTIONS, REVIEW_OPTIONS } from './filterOptions';
 
 interface EventsTableProps {
   events: AnomalyEvent[] | undefined;
   isLoading: boolean;
-  filters: AnomalyEventFilters;
-  onFiltersChange: (filters: AnomalyEventFilters) => void;
   selectedId: number | null;
   onSelect: (event: AnomalyEvent) => void;
 }
 
 const TH_BASE =
-  'px-3 py-2 text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider whitespace-nowrap';
+  'px-2 py-2 text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider whitespace-nowrap';
 
-const MAX_SENSOR_CHIPS = 3;
+const MAX_SENSOR_CHIPS = 2;
 const N_COLUMNS = 9;
 
 function rowStatus(event: AnomalyEvent) {
@@ -33,17 +30,10 @@ function rowStatus(event: AnomalyEvent) {
 }
 
 /**
- * Tabla densa de episodios (patrón AnomaliesTable/AlertsTable) con los
- * filtros integrados en los headers de columna, estilo data-grid.
+ * Tabla densa de episodios (patrón AnomaliesTable/AlertsTable). Los filtros de
+ * Sistema/Revisión viven en la toolbar (segmented); aquí los headers son texto.
  */
-export function EventsTable({
-  events,
-  isLoading,
-  filters,
-  onFiltersChange,
-  selectedId,
-  onSelect,
-}: EventsTableProps) {
+export function EventsTable({ events, isLoading, selectedId, onSelect }: EventsTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -58,7 +48,7 @@ export function EventsTable({
             <th scope="col" className={cn(TH_BASE, 'text-left')}>ID</th>
             <th scope="col" className={cn(TH_BASE, 'text-left')}>Inicio</th>
             <th scope="col" className={cn(TH_BASE, 'text-right')}>Duración</th>
-            <th scope="col" className={cn(TH_BASE, 'text-right')}>Nivel pico</th>
+            <th scope="col" className={cn(TH_BASE, 'text-center')}>Nivel pico</th>
             <th
               scope="col"
               className={cn(TH_BASE, 'text-right cursor-help underline decoration-dotted')}
@@ -67,56 +57,29 @@ export function EventsTable({
               Detec.
             </th>
             <th scope="col" className={cn(TH_BASE, 'text-left')}>Sensores</th>
-            <th scope="col" className={cn(TH_BASE, 'text-left')}>
-              <HeaderFilter
-                label="Sistema"
-                options={POSIBLE_OPTIONS}
-                value={filters.posible}
-                defaultValue="all"
-                onChange={(posible) => onFiltersChange({ ...filters, posible })}
-              />
-            </th>
-            <th scope="col" className={cn(TH_BASE, 'text-left')}>
-              <HeaderFilter
-                label="Revisión"
-                options={REVIEW_OPTIONS}
-                value={filters.review_status}
-                defaultValue="all"
-                onChange={(review_status) => onFiltersChange({ ...filters, review_status })}
-              />
-            </th>
+            <th scope="col" className={cn(TH_BASE, 'text-left')}>Sistema</th>
+            <th scope="col" className={cn(TH_BASE, 'text-left')}>Revisión</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--border-subtle)]">
           {isLoading && events === undefined
             ? Array.from({ length: 6 }, (_, i) => (
                 <tr key={i}>
-                  <td colSpan={N_COLUMNS} className="px-3 py-2.5">
+                  <td colSpan={N_COLUMNS} className="px-2 py-2.5">
                     <Skeleton.Bar className="h-4 w-full" />
                   </td>
                 </tr>
               ))
             : (events ?? []).map((event) => {
                 const dot = rowStatus(event);
-                const level = PLANT_LEVEL_CONFIG[event.nivel_pico] ?? PLANT_LEVEL_CONFIG[0];
-                const review = REVIEW_STATUS_CONFIG[event.review_status];
                 const isOpen = event.closed_reason === null;
                 return (
                   <tr
                     key={event.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Abrir episodio #${event.id}, ${fmtTimeShort(event.tiempo_inicio)}`}
                     onClick={() => onSelect(event)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onSelect(event);
-                      }
-                    }}
+                    aria-current={selectedId === event.id ? true : undefined}
                     className={cn(
                       'cursor-pointer transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--accent-primary)]/40',
                       selectedId === event.id
                         ? 'bg-[var(--status-advisory-muted)]'
                         : isOpen
@@ -124,40 +87,40 @@ export function EventsTable({
                           : 'hover:bg-[var(--bg-inset)]'
                     )}
                   >
-                    <td className="px-3 py-2 w-6" title={dot.title}>
+                    <td className="px-2 py-2 w-6" title={dot.title}>
                       <StatusDot status={dot.status} size="sm" pulse={dot.pulse} />
                     </td>
-                    <td className="px-3 py-2 text-xs font-readout text-[var(--text-secondary)]">
-                      #{event.id}
-                    </td>
-                    <td className="px-3 py-2 text-xs font-readout text-[var(--text-primary)] whitespace-nowrap">
+                    {/* Activador real: la fila conserva su semántica de tabla
+                        (`th scope="row"`); el botón es el punto de foco/teclado
+                        que abre la investigación, no un `<tr role="button">`. */}
+                    <th scope="row" className="px-2 py-2 text-left font-normal">
+                      <button
+                        type="button"
+                        aria-label={`Abrir episodio #${event.id}, ${fmtTimeShort(event.tiempo_inicio)}`}
+                        onClick={() => onSelect(event)}
+                        className="rounded-sm text-xs font-readout text-[var(--text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]/50"
+                      >
+                        #{event.id}
+                      </button>
+                    </th>
+                    <td className="px-2 py-2 text-xs font-readout text-[var(--text-primary)] whitespace-nowrap">
                       {fmtTimeShort(event.tiempo_inicio)}
                     </td>
-                    <td className="px-3 py-2 text-xs font-readout text-[var(--text-secondary)] text-right whitespace-nowrap">
+                    <td className="px-2 py-2 text-xs font-readout text-[var(--text-secondary)] text-right whitespace-nowrap">
                       {isOpen ? 'en curso' : fmtDuration(event.duracion_segundos)}
                     </td>
-                    <td className="px-3 py-2 text-right">
-                      <span
-                        className={cn(
-                          'inline-flex px-2 py-0.5 text-xs font-medium font-readout rounded-none',
-                          level.badge
-                        )}
-                      >
-                        {level.name}
+                    <td className="px-2 py-2 text-center">
+                      <span className="inline-flex justify-center">
+                        <Badge axis="criticality" value={criticalityFromLevel(event.nivel_pico)} />
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-xs font-readout text-[var(--text-secondary)] text-right">
+                    <td className="px-2 py-2 text-xs font-readout text-[var(--text-secondary)] text-right">
                       {event.n_detecciones}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="px-2 py-2">
                       <div className="flex items-center gap-1 flex-wrap">
                         {event.sensores_involucrados.slice(0, MAX_SENSOR_CHIPS).map((s) => (
-                          <span
-                            key={s}
-                            className="px-1.5 py-0.5 text-[10px] font-readout bg-[var(--bg-inset)] text-[var(--text-secondary)] border border-[var(--border-subtle)]"
-                          >
-                            {s}
-                          </span>
+                          <Badge key={s} tag={s} />
                         ))}
                         {event.sensores_involucrados.length > MAX_SENSOR_CHIPS && (
                           <span className="text-[10px] font-readout text-[var(--text-muted)]">
@@ -166,24 +129,20 @@ export function EventsTable({
                         )}
                       </div>
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      <span
-                        className={cn(
-                          'inline-flex px-2 py-0.5 text-xs font-medium rounded-none',
-                          event.posible
-                            ? 'bg-[var(--status-warning-muted)] text-[var(--status-warning)]'
-                            : 'bg-[var(--status-critical-muted)] text-[var(--status-critical)]'
-                        )}
-                      >
-                        {event.posible ? 'Candidata' : 'Confirmada'}
-                      </span>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <Badge axis="state" value={event.posible ? 'candidata' : 'confirmada'} />
                     </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      <span
-                        className={cn('inline-flex px-2 py-0.5 text-xs font-medium rounded-none', review.badge)}
-                      >
-                        {review.label}
-                      </span>
+                    <td className="px-2 py-2 whitespace-nowrap">
+                      <Badge
+                        axis="state"
+                        value={
+                          event.review_status === 'pending_review'
+                            ? 'pendiente'
+                            : event.review_status === 'confirmed_real'
+                              ? 'confirmada-real'
+                              : 'falso-positivo'
+                        }
+                      />
                     </td>
                   </tr>
                 );

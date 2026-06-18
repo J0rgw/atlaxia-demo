@@ -57,8 +57,8 @@ export function buildPipelineHealthKPI(
   return {
     id: 'health',
     icon: 'efficiency',
-    title: t('systemStatus'),
-    titleKey: 'systemStatus',
+    title: t('agentStatus'),
+    titleKey: 'agentStatus',
     value: t(stateKey),
     valueSecondary: age,
     subtitle: modelsLabel,
@@ -164,7 +164,7 @@ interface AlertItem {
   id: number | string;
   name: string;
   timestamp: number;
-  type: string;
+  type: 'Emergencia' | 'Alerta' | 'Aviso';
 }
 
 const TIME_FORMAT: Intl.DateTimeFormatOptions = {
@@ -177,6 +177,16 @@ const ALERT_STATUS_MAP: Record<string, 'success' | 'error' | 'pending'> = {
   Emergencia: 'error',
   Alerta: 'pending',
   Aviso: 'success',
+};
+
+/** SCADA alarm priority → `criticality` badge axis. EMERGENCY and CRITICAL both
+ *  map to `critical`; anything unrecognised falls back to `normal`. */
+const ALARM_CRITICALITY_MAP: Record<string, EventLogType['criticality']> = {
+  EMERGENCY: 'critical',
+  CRITICAL: 'critical',
+  HIGH: 'high',
+  MEDIUM: 'medium',
+  LOW: 'low',
 };
 
 export function buildEventLog(
@@ -194,6 +204,7 @@ export function buildEventLog(
         timestamp: new Date(alarm.timestamp).toLocaleTimeString(undefined, TIME_FORMAT),
         status: alarm.priority === 'EMERGENCY' || alarm.priority === 'HIGH' ? 'error' : 'pending',
         statusText: alarm.priority,
+        criticality: ALARM_CRITICALITY_MAP[alarm.priority.toUpperCase()] ?? 'normal',
       });
     }
   }
@@ -206,6 +217,7 @@ export function buildEventLog(
         timestamp: new Date(alert.timestamp).toLocaleTimeString(undefined, TIME_FORMAT),
         status: ALERT_STATUS_MAP[alert.type] || 'pending',
         statusText: alert.type,
+        alertType: alert.type,
       });
     }
   }

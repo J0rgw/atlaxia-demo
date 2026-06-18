@@ -5,7 +5,6 @@ import { useEChartsTheme } from '@/hooks/useEChartsTheme';
 import { useTelemetryHistory } from '@/hooks/useOverviewData';
 import { useSensorsConfig } from '@/hooks/useSensorsConfig';
 import { Card, CardContent } from '@/components/ui/Card';
-import { LiveIndicator } from './LiveIndicator';
 import { useTranslation } from '@/stores/languageStore';
 
 export function SensorTrendChart() {
@@ -150,7 +149,6 @@ export function SensorTrendChart() {
         <h3 className="text-sm font-semibold text-[var(--text-primary)] uppercase tracking-wide">
           {t('sensorTrends')}
         </h3>
-        <LiveIndicator />
         <span className="ml-auto text-[10px] text-[var(--text-muted)] font-readout">24h</span>
       </div>
       <CardContent className="p-2">

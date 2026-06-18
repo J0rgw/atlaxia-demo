@@ -4,6 +4,10 @@
  * distingue también en escala de grises / daltonismo, no solo por color (a11y).
  */
 
+import type { ValueOf } from '@/lib/badges';
+
+type AnomalyValue = ValueOf<'anomaly'>;
+
 const HEAT_STOPS: [number, [number, number, number]][] = [
   [0, [139, 148, 158]], // calmo gris muted
   [0.4, [210, 153, 34]], // warning ámbar
@@ -30,6 +34,18 @@ export function sev(v: number): string {
   if (v >= 0.6) return 'Anómalo';
   if (v >= 0.4) return 'Algo anómalo';
   return 'Leve';
+}
+
+/**
+ * Grado de anomalía → valor del eje `anomaly` del registro de badges (fuente
+ * única del mapeo score→badge; mismos cortes que `sev`). El color lo resuelve el
+ * sistema de badges vía tonos de criticidad, no aquí.
+ */
+export function sevValue(v: number): AnomalyValue {
+  if (v >= 0.8) return 'muy';
+  if (v >= 0.6) return 'anomalo';
+  if (v >= 0.4) return 'algo';
+  return 'leve';
 }
 
 /** Color de severidad alineado a los status ISA-101. */
