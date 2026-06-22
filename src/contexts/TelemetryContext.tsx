@@ -278,10 +278,6 @@ export function TelemetryProvider({ children, enabled = true }: TelemetryProvide
       }
 
       const now = snapshot.timestamp || Date.now();
-      // DEBUG: trace LIT101 across sources to diagnose post-reconnect dips
-      const litRaw = (snapshot.sensors as Record<string, unknown>)['LIT101']
-        ?? (snapshot.sensors as Record<string, unknown>)['1_LT_001_PV.Value'];
-      console.log(`[TelDbg/snap] source=${source} ts=${now} LIT101=${String(litRaw)} totalKeys=${Object.keys(snapshot.sensors).length}`);
 
       // Filter out invalid sensor values before storing.
       // Reject null/undefined/'' BEFORE Number() — they coerce to 0 and
@@ -333,12 +329,6 @@ export function TelemetryProvider({ children, enabled = true }: TelemetryProvide
           if (history.length > MAX_HISTORY_POINTS) {
             history.shift();
           }
-          // DEBUG: trace history pushes for LIT101
-          if (historyKey === 'LIT101') {
-            console.log(`[TelDbg/hist] PUSH src=${source} LIT101=${value} ts=${now} prev=${lastPoint?.value ?? 'none'} dt=${lastPoint ? now - lastPoint.ts : 'n/a'}`);
-          }
-        } else if (historyKey === 'LIT101') {
-          console.log(`[TelDbg/hist] SKIP src=${source} LIT101=${value} ts=${now} prev=${lastPoint.value} dt=${now - lastPoint.ts}`);
         }
       });
       setHistoryTrigger((t) => t + 1);
@@ -356,12 +346,6 @@ export function TelemetryProvider({ children, enabled = true }: TelemetryProvide
       }
 
       const now = delta.timestamp || Date.now();
-      // DEBUG: trace LIT101 deltas
-      const litRaw = (delta.changes as Record<string, unknown>)['LIT101']
-        ?? (delta.changes as Record<string, unknown>)['1_LT_001_PV.Value'];
-      if (litRaw !== undefined) {
-        console.log(`[TelDbg/delta] ts=${now} LIT101=${String(litRaw)}`);
-      }
 
       // Filter out invalid values before applying delta (same null-aware
       // guard as the snapshot path — see handleSnapshot for rationale).
@@ -416,12 +400,6 @@ export function TelemetryProvider({ children, enabled = true }: TelemetryProvide
           if (history.length > MAX_HISTORY_POINTS) {
             history.shift();
           }
-          // DEBUG: trace delta-driven history pushes for LIT101
-          if (historyKey === 'LIT101') {
-            console.log(`[TelDbg/hist] PUSH src=delta LIT101=${value} ts=${now} prev=${lastPoint?.value ?? 'none'} dt=${lastPoint ? now - lastPoint.ts : 'n/a'}`);
-          }
-        } else if (historyKey === 'LIT101') {
-          console.log(`[TelDbg/hist] SKIP src=delta LIT101=${value} ts=${now} prev=${lastPoint.value} dt=${now - lastPoint.ts}`);
         }
       });
       setHistoryTrigger((t) => t + 1);

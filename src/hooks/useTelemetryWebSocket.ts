@@ -313,7 +313,6 @@ export function useTelemetryWebSocket(
           MAX_RECONNECT_DELAY
         );
 
-        console.log(`[WS] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current})`);
         setStatus('reconnecting');
 
         // After 3 failed attempts, start fallback polling
