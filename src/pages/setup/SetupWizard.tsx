@@ -26,6 +26,9 @@ import { SetupPreviewContext } from './previewContext';
 import { useUnauthThemeBootstrap, readStoredThemeMode } from '@/hooks/useUnauthThemeBootstrap';
 import type { PreviewMode } from '@/hooks/useUnauthThemeBootstrap';
 
+const IS_DEMO = import.meta.env.MODE === 'demo';
+const TOUR_WIZARD_FLAG = 'demo.tourWizard';
+
 export function SetupWizard() {
   const navigate = useNavigate();
   const {
@@ -129,6 +132,13 @@ export function SetupWizard() {
     navigate('/login', { replace: true });
   };
 
+  // Demo escape hatch: clear the opt-in tour flag so /login stops being treated
+  // as an incomplete install, then return to the login surface.
+  const handleExitWizard = () => {
+    localStorage.removeItem(TOUR_WIZARD_FLAG);
+    navigate('/login', { replace: true });
+  };
+
   const togglePreviewMode = () => {
     setPreviewMode((m) => (m === 'dark' ? 'light' : 'dark'));
   };
@@ -228,6 +238,15 @@ export function SetupWizard() {
             </div>
           </div>
 
+          {IS_DEMO && (
+            <button
+              type="button"
+              onClick={handleExitWizard}
+              className="shrink-0 px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-inset)] rounded-md transition-colors"
+            >
+              Volver al login
+            </button>
+          )}
         </div>
       </header>
 

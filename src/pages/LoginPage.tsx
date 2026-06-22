@@ -60,8 +60,12 @@ export function LoginPage() {
     fetchStatus().catch(() => {});
   }, [fetchStatus]);
 
+  // In a real installation setup is mandatory, so an incomplete install bounces
+  // to the wizard. In the demo the wizard is opt-in (the "tour" button), so this
+  // redirect must NOT run — otherwise the tour flag traps the user on /setup with
+  // no way back to the demo login.
   useEffect(() => {
-    if (status && !status.setup_completed) {
+    if (!IS_DEMO && status && !status.setup_completed) {
       navigate('/setup', { replace: true });
     }
   }, [status, navigate]);
