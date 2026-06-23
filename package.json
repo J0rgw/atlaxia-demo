@@ -37,6 +37,7 @@
     "immer": "^10.1.1",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
+    "lottie-web": "^5.12.2",
     "lucide-react": "^0.468.0",
     "msw": "^2.14.6",
     "papaparse": "^5.5.3",

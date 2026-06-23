@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { resolveStaticUrl } from '@/lib/api';
+import { HeroAnomalyChart } from '@/components/auth/HeroAnomalyChart';
 import {
   useUnauthThemeBootstrap,
   readStoredThemeMode,
@@ -197,25 +198,24 @@ function DemoLoginSurface(props: DemoLoginProps) {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
-      <SchematicBackdrop />
-
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-8 lg:px-12 lg:py-10">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-sm bg-[var(--accent-primary)]/15 ring-1 ring-[var(--accent-primary)]/30">
-              {logoUrl ? (
-                <img src={logoUrl} alt="" className="h-full w-full object-contain p-1.5" />
-              ) : (
+            {logoUrl ? (
+              <img src={logoUrl} alt="" className="h-10 w-10 shrink-0 rounded-sm object-cover" />
+            ) : (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-[var(--accent-primary)]/15 ring-1 ring-[var(--accent-primary)]/30">
                 <span className="text-sm font-bold text-[var(--accent-primary)]">
                   {installationName.slice(0, 2).toUpperCase()}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
             <span className="text-base font-semibold tracking-tight">{installationName}</span>
           </div>
         </header>
 
         <section className="flex flex-1 items-center">
+          <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:gap-16">
           <div className="w-full max-w-2xl">
             <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--accent-primary)]">
               // demo pública poblado con datos mock de swat
@@ -256,6 +256,9 @@ function DemoLoginSurface(props: DemoLoginProps) {
               </button>
             </div>
           </div>
+
+            <HeroAnomalyChart className="hidden w-full lg:block" />
+          </div>
         </section>
 
         <footer className="font-mono uppercase flex flex-col items-start justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 text-xs sm:flex-row sm:items-center">
@@ -275,64 +278,3 @@ function DemoLoginSurface(props: DemoLoginProps) {
 // rows of SWAT sensor codes that drift leftward like a live telemetry ticker.
 // Aria-hidden so it stays out of the accessibility tree, and the marquee is
 // disabled under prefers-reduced-motion.
-function SchematicBackdrop() {
-  const rows = [
-    ['LIT101', 'FIT101', 'AIT201', 'AIT202', 'AIT203', 'FIT201', 'LIT301'],
-    ['FIT301', 'DPIT301', 'AIT301', 'AIT302', 'AIT303', 'LIT401', 'FIT401'],
-    ['AIT401', 'AIT402', 'FIT501', 'FIT502', 'FIT503', 'FIT504', 'AIT501'],
-    ['AIT502', 'AIT503', 'AIT504', 'PIT501', 'PIT502', 'PIT503', 'FIT601'],
-  ];
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 select-none"
-    >
-      <div
-        className="absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage:
-            'linear-gradient(var(--text-muted) 1px, transparent 1px), linear-gradient(90deg, var(--text-muted) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-          maskImage: 'radial-gradient(ellipse at 80% 60%, black 0%, transparent 70%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at 80% 60%, black 0%, transparent 70%)',
-        }}
-      />
-      <style>{`
-        @keyframes atx-marquee-left {
-          from { transform: translate3d(0, 0, 0); }
-          to { transform: translate3d(-50%, 0, 0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .atx-marquee-row { animation: none !important; }
-        }
-      `}</style>
-      <div
-        className="absolute bottom-20 right-0 hidden w-[44rem] max-w-[62vw] flex-col gap-2 opacity-30 lg:flex"
-        style={{
-          maskImage:
-            'linear-gradient(90deg, transparent 0%, black 28%, black 92%, transparent 100%)',
-          WebkitMaskImage:
-            'linear-gradient(90deg, transparent 0%, black 28%, black 92%, transparent 100%)',
-        }}
-      >
-        {rows.map((row, i) => (
-          <div key={i} className="flex overflow-hidden">
-            <div
-              className="atx-marquee-row flex shrink-0 gap-8 pr-8 will-change-transform"
-              style={{ animation: `atx-marquee-left ${30 + i * 7}s linear infinite` }}
-            >
-              {[...row, ...row].map((code, j) => (
-                <span
-                  key={`${code}-${j}`}
-                  className="font-mono text-[11px] uppercase leading-none tracking-wider text-[var(--text-muted)]"
-                >
-                  {code}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
