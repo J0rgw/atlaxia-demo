@@ -267,7 +267,7 @@ export function TelemetryProvider({ children, enabled = true }: TelemetryProvide
     [mapToDisplayName],
   );
 
-  const handleSnapshot = useCallback((snapshot: TelemetrySnapshot, source: string = 'ws-snapshot') => {
+  const handleSnapshot = useCallback((snapshot: TelemetrySnapshot, _source: string = 'ws-snapshot') => {
     // Drop late WS frames that arrive during/after logout — the provider is
     // about to unmount but its handlers can still race the auth flip.
     if (!useAuthStore.getState().isAuthenticated) return;
