@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { DiagnosticsPanel, ProcessStrip } from '@/components/machines';
 import type { DiagnosticInfo } from '@/components/machines';
-import { SensorCard } from '@/components/sensors';
+import { SensorCard, SampleInstrumentCard } from '@/components/sensors';
+import { SAMPLE_INSTRUMENTS } from '@/config/sampleInstruments';
 import { Button } from '@/components/ui/Button';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { api } from '@/lib/api';
@@ -19,10 +20,11 @@ import {
   evaluateAllSensors,
   getIndustrialSensor,
 } from '@/config/industrial-sensors';
+import { getInstrumentIconByTag, getInstrumentLabel } from '@/lib/instrumentIcons';
 import { useTelemetryContext } from '@/contexts/TelemetryContext';
 import { useMachinesStore } from '@/stores/machinesStore';
 import { useTranslation } from '@/stores/languageStore';
-import { useFavorites } from '@/hooks/useLocalStorage';
+import { useFavorites, useLocalStorage } from '@/hooks/useLocalStorage';
 import { useTelemetryData } from '@/hooks/useTelemetryData';
 
 export function MachinesPage() {
@@ -49,6 +51,13 @@ export function MachinesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toggleFavorite, isFavorite } = useFavorites('machine_process_favorites');
+  // Test palette: show one example card per ISA device type (valve, pump, UV, …)
+  // since the live demo feed only emits analog transmitters. Off by default so
+  // the client-facing grid stays clean.
+  const [showTypeSamples, setShowTypeSamples] = useLocalStorage<boolean>(
+    'machines_show_type_samples',
+    false,
+  );
 
   const { categories, mapToDisplayName, getDisplayLabel, isSensorConfigured, getSensorMapping, getSensorRange, getAlarmLimits, getConfiguredTags, topology } = useSensorsConfig();
 
@@ -340,6 +349,14 @@ export function MachinesPage() {
               </h2>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant={showTypeSamples ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setShowTypeSamples((prev) => !prev)}
+                title="Muestra una tarjeta de ejemplo por cada tipo de dispositivo ISA (válvula, bomba, UV, …)"
+              >
+                {showTypeSamples ? 'Ocultar tipos de sensor' : 'Mostrar tipos de sensor'}
+              </Button>
               {selectedProcess && (
                 <Button
                   variant="ghost"
@@ -365,6 +382,28 @@ export function MachinesPage() {
           {/* Cards grid — the only content view on this page. Chart drilldown
               happens on /telemetry via card click. */}
           <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin">
+            {/* Type gallery (test aid): one example card per ISA device type so
+                every instrument icon can be verified, including types the live
+                feed never sends (valve, pump, UV). Toggled from the header. */}
+            {showTypeSamples && (
+              <div className="mb-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm font-semibold text-[var(--text-secondary)]">
+                    Tipos de sensor (ejemplos de prueba)
+                  </h3>
+                  <span className="text-xs text-[var(--text-muted)]">
+                    — una tarjeta por cada tipo de dispositivo ISA
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                  {SAMPLE_INSTRUMENTS.map((sample) => (
+                    <SampleInstrumentCard key={sample.tag} sample={sample} />
+                  ))}
+                </div>
+                <div className="border-t border-[var(--border-subtle)]/60 mt-5" />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
                 {sortedSensors.map((sensor) => {
                   const displayName = mapToDisplayName(sensor.key) || sensor.name;
@@ -375,6 +414,8 @@ export function MachinesPage() {
                   const hasData = sensor.value != null;
                   const range = getSensorRange(displayName);
                   const label = getDisplayLabel(displayName);
+                  const DeviceIcon = getInstrumentIconByTag(displayName);
+                  const deviceLabel = getInstrumentLabel(displayName);
 
                   if (industrialSensor) {
                     return (
@@ -419,7 +460,15 @@ export function MachinesPage() {
                       )}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-[var(--text-primary)] text-sm">{label}</h3>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <DeviceIcon
+                            className="w-4 h-4 flex-shrink-0 text-[var(--text-secondary)]"
+                            aria-label={deviceLabel}
+                          >
+                            <title>{deviceLabel}</title>
+                          </DeviceIcon>
+                          <h3 className="font-bold text-[var(--text-primary)] text-sm truncate">{label}</h3>
+                        </div>
                         {isLive && hasData && (
                           <span className="w-2 h-2 rounded-full bg-[var(--status-normal)] animate-pulse" />
                         )}

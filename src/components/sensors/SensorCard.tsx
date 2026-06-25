@@ -13,6 +13,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/Badge';
+import { getInstrumentIcon, getInstrumentLabel } from '@/lib/instrumentIcons';
 import type {
   IndustrialSensor,
   SensorEvaluation,
@@ -157,6 +158,8 @@ export function SensorCard({
   const config = STATUS_CONFIG[status];
   const [hasRecentChange, setHasRecentChange] = useState(false);
   const prevValueRef = useRef(value);
+  const DeviceIcon = getInstrumentIcon(sensor);
+  const deviceLabel = getInstrumentLabel(sensor);
 
   // Detect value changes and trigger highlight
   useEffect(() => {
@@ -186,6 +189,12 @@ export function SensorCard({
       {/* Header: tag · ISA state · favorite */}
       <div className="flex items-start justify-between mb-3 gap-2">
         <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <DeviceIcon
+            className="w-4 h-4 flex-shrink-0 text-[var(--text-secondary)]"
+            aria-label={deviceLabel}
+          >
+            <title>{deviceLabel}</title>
+          </DeviceIcon>
           <h3 className="font-bold text-[var(--text-primary)] text-sm">{sensor.tag}</h3>
           <Badge
             axis="sensor"

@@ -42,7 +42,12 @@ export default {
         },
 
         // SCADA Design System semantic tokens (design.md Section 9)
-        base:             'var(--bg-base)',
+        // NOTE: do NOT register a `base` color here. `base` is also a fontSize
+        // key, so a `base` color makes `text-base` emit BOTH `font-size: 13px`
+        // AND `color: var(--bg-base)` — the latter silently overrides intended
+        // text colors (e.g. text-[var(--text-primary)]) by source order and
+        // paints text in the page background, rendering it invisible. For the
+        // page background use the arbitrary form: bg-[var(--bg-base)].
         surface:          'var(--bg-surface)',
         'surface-raised': 'var(--bg-surface-raised)',
         inset:            'var(--bg-inset)',

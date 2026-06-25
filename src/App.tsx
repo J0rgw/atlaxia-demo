@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { LoginPage } from '@/pages/LoginPage';
 import { useAuthStore } from '@/stores/authStore';
+import { useAccessGateStore } from '@/stores/accessGateStore';
 import { useInstallationStore } from '@/stores/installationStore';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { TelemetryProvider } from '@/contexts/TelemetryContext';
@@ -51,6 +52,9 @@ const NetworkOverviewPage = lazy(() =>
 const BadgesPage = lazy(() =>
   import('@/pages/dev/BadgesPage').then((m) => ({ default: m.BadgesPage }))
 );
+const IconsPage = lazy(() =>
+  import('@/pages/dev/IconsPage').then((m) => ({ default: m.IconsPage }))
+);
 
 function RouteFallback() {
   return (
@@ -66,10 +70,13 @@ function RouteFallback() {
   );
 }
 
+const IS_DEMO = import.meta.env.MODE === 'demo';
+
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const loadSession = useAuthStore((state) => state.loadSession);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const gateUnlocked = useAccessGateStore((state) => state.unlocked);
 
   const fetchConfig = useInstallationStore((state) => state.fetchConfig);
   const config = useInstallationStore((state) => state.config);
@@ -100,12 +107,26 @@ function App() {
   }
 
   if (!isAuthenticated) {
+    // Demo password gate: until it is unlocked, every route resolves to the
+    // landing/password screen so /setup and /dev/* can't be reached directly
+    // by URL. The gate is demo-only — real installations rely on backend auth.
+    if (IS_DEMO && !gateUnlocked) {
+      return (
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route path="*" element={<ErrorBoundary level="page"><LoginPage /></ErrorBoundary>} />
+          </Routes>
+        </Suspense>
+      );
+    }
+
     return (
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/login" element={<ErrorBoundary level="page"><LoginPage /></ErrorBoundary>} />
           <Route path="/setup" element={<ErrorBoundary level="page"><SetupWizard /></ErrorBoundary>} />
           <Route path="/dev/badges" element={<ErrorBoundary level="page"><BadgesPage /></ErrorBoundary>} />
+          <Route path="/dev/icons" element={<ErrorBoundary level="page"><IconsPage /></ErrorBoundary>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Suspense>
@@ -228,6 +249,7 @@ function App() {
           } />
 
           <Route path="/dev/badges" element={<ErrorBoundary level="page"><BadgesPage /></ErrorBoundary>} />
+          <Route path="/dev/icons" element={<ErrorBoundary level="page"><IconsPage /></ErrorBoundary>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

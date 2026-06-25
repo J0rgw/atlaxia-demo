@@ -1,0 +1,9 @@
+{
+  "algorithm": "PBKDF2-HMAC-SHA256",
+  "iterations": 210000,
+  "keyLength": 32,
+  "digest": "sha256",
+  "salt": "u0wTcalIV4T1lnyd9KNHoQ==",
+  "hash": "hooP/KX5o2rm3efGoYj6PaQ/v9WFU0XGbrz2d8ZUqcE=",
+  "updatedAt": "2026-06-25T17:37:33.398Z"
+}
