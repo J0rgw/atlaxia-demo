@@ -92,6 +92,22 @@ function App() {
     }
   }, [isAuthenticated, config, fetchConfig]);
 
+  // Demo password gate — enforced on EVERY browser session, even when a demo
+  // session is already authenticated. The auth token persists in localStorage,
+  // but the gate-unlock flag lives in sessionStorage and clears on browser
+  // close, so each new session must re-enter the password. That's what makes
+  // rotating the password actually revoke returning visitors. (Client-side
+  // gate, see lib/accessGate — the downloadable bundle is a known trade-off.)
+  if (IS_DEMO && !gateUnlocked) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="*" element={<ErrorBoundary level="page"><LoginPage /></ErrorBoundary>} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
   if (isLoading && !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--bg-base)]">
@@ -107,19 +123,6 @@ function App() {
   }
 
   if (!isAuthenticated) {
-    // Demo password gate: until it is unlocked, every route resolves to the
-    // landing/password screen so /setup and /dev/* can't be reached directly
-    // by URL. The gate is demo-only — real installations rely on backend auth.
-    if (IS_DEMO && !gateUnlocked) {
-      return (
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
-            <Route path="*" element={<ErrorBoundary level="page"><LoginPage /></ErrorBoundary>} />
-          </Routes>
-        </Suspense>
-      );
-    }
-
     return (
       <Suspense fallback={<RouteFallback />}>
         <Routes>
