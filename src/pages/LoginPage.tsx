@@ -408,17 +408,21 @@ function DemoAccessGate(props: DemoAccessGateProps) {
           </div>
 
           {!configured && (
-            <div className="flex items-center gap-2 rounded-md border border-[var(--status-warning)]/40 bg-[var(--status-warning-muted)] p-3 text-sm text-[var(--status-warning)]">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <span>El acceso no está configurado. Ejecuta `npm run gate:generate`.</span>
-            </div>
+            <p className="flex items-baseline gap-2 border-l-2 border-[var(--status-warning)] pl-3 font-mono text-[11px] leading-relaxed tracking-tight text-[var(--status-warning)]">
+              <span aria-hidden="true" className="text-[var(--status-warning)]/50">//</span>
+              <span>acceso no configurado · npm run gate:generate</span>
+            </p>
           )}
 
           {error && (
-            <div className="flex items-center gap-2 rounded-md border border-[var(--status-critical)]/40 bg-[var(--status-critical-muted)] p-3 text-sm text-[var(--status-critical)]">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <span>{error}</span>
-            </div>
+            <p
+              role="alert"
+              aria-live="assertive"
+              className="flex items-baseline gap-2 border-l-2 border-[var(--status-critical)] pl-3 font-mono text-[11px] uppercase leading-relaxed tracking-[0.18em] text-[var(--status-critical)]"
+            >
+              <span aria-hidden="true" className="text-[var(--status-critical)]/50">//</span>
+              <span>error: {error}</span>
+            </p>
           )}
 
           <button
